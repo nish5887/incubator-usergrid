@@ -24,6 +24,7 @@ import org.apache.usergrid.persistence.core.metrics.MetricsFactory;
 import org.apache.usergrid.persistence.index.IndexFig;
 import org.apache.usergrid.persistence.index.impl.BufferQueue;
 import org.apache.usergrid.persistence.index.impl.BufferQueueInMemoryImpl;
+import org.apache.usergrid.persistence.index.impl.BufferQueueSNSImpl;
 import org.apache.usergrid.persistence.index.impl.BufferQueueSQSImpl;
 import org.apache.usergrid.persistence.map.MapManagerFactory;
 import org.apache.usergrid.persistence.queue.QueueManagerFactory;
@@ -49,8 +50,8 @@ public class QueueProvider implements Provider<BufferQueue> {
 
 
     @Inject
-    public QueueProvider( final IndexFig indexFig, final QueueManagerFactory queueManagerFactory,
-                          final MapManagerFactory mapManagerFactory, final MetricsFactory metricsFactory ) {
+    public QueueProvider(final IndexFig indexFig, final QueueManagerFactory queueManagerFactory,
+                         final MapManagerFactory mapManagerFactory, final MetricsFactory metricsFactory) {
         this.indexFig = indexFig;
 
 
@@ -63,7 +64,7 @@ public class QueueProvider implements Provider<BufferQueue> {
     @Override
     @Singleton
     public BufferQueue get() {
-        if ( bufferQueue == null ) {
+        if (bufferQueue == null) {
             bufferQueue = getQueue();
         }
 
@@ -75,15 +76,17 @@ public class QueueProvider implements Provider<BufferQueue> {
     private BufferQueue getQueue() {
         final String value = indexFig.getQueueImplementation();
 
-        final Implementations impl = Implementations.valueOf( value );
+        final Implementations impl = Implementations.valueOf(value);
 
-        switch ( impl ) {
+        switch (impl) {
             case LOCAL:
-                return new BufferQueueInMemoryImpl( indexFig );
+                return new BufferQueueInMemoryImpl(indexFig);
             case SQS:
-                return new BufferQueueSQSImpl( queueManagerFactory, indexFig, mapManagerFactory, metricsFactory );
+                return new BufferQueueSQSImpl(queueManagerFactory, indexFig, mapManagerFactory, metricsFactory);
+            case SNS:
+                return new BufferQueueSNSImpl(queueManagerFactory, indexFig, mapManagerFactory, metricsFactory);
             default:
-                throw new IllegalArgumentException( "Configuration value of " + getErrorValues() + " are allowed" );
+                throw new IllegalArgumentException("Configuration value of " + getErrorValues() + " are allowed");
         }
     }
 
@@ -91,11 +94,11 @@ public class QueueProvider implements Provider<BufferQueue> {
     private String getErrorValues() {
         String values = "";
 
-        for ( final Implementations impl : Implementations.values() ) {
+        for (final Implementations impl : Implementations.values()) {
             values += impl + ", ";
         }
 
-        values = values.substring( 0, values.length() - 2 );
+        values = values.substring(0, values.length() - 2);
 
         return values;
     }
@@ -106,6 +109,7 @@ public class QueueProvider implements Provider<BufferQueue> {
      */
     public static enum Implementations {
         LOCAL,
+        SNS,
         SQS;
 
 
