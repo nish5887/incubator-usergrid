@@ -5,9 +5,10 @@ import org.apache.usergrid.java.client.UsergridClient;
 /**
  * Created by ApigeeCorporation on 6/23/15.
  */
-public class UGEntity extends UGObject {
+public class UGEntity {
 
-    protected UGEntity(UsergridClient client) {
+
+    public UGEntity(UsergridClient client) {
         super(client);
     }
 }

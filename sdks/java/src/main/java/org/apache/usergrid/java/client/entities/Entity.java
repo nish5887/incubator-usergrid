@@ -33,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.node.TextNode;
+import org.apache.usergrid.java.client.Client;
 
 public class Entity {
 
@@ -48,6 +49,9 @@ public class Entity {
     protected Map<String, JsonNode> properties = new HashMap<String, JsonNode>();
 
     public Entity() {
+    }
+
+    public Entity(String uuid) {
     }
 
     public Entity(String type) {
@@ -189,4 +193,16 @@ public class Entity {
         return l;
     }
 
+  public void save() {
+    Client.save(this);
+  }
+
+  public void collection(final String pets) {
+
+  }
+
+  public void delete() {
+        //check if the UUID is set,
+    // or the name
+  }
 }

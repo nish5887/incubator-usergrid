@@ -1044,7 +1044,11 @@ public class Client {
         return q;
     }
 
-    public interface Query {
+  public static void save(final Entity entity) {
+
+  }
+
+  public interface Query {
 
         public ApiResponse getResponse();
 
