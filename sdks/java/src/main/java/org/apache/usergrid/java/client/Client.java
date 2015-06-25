@@ -967,8 +967,10 @@ public class Client {
      * @param connectedEntityId
      * @return
      */
-    public ApiResponse connectEntities(String connectingEntityType,
-            String connectingEntityId, String connectionType,
+    public ApiResponse connectEntities(
+            String connectingEntityType,
+            String connectingEntityId,
+            String connectionType,
             String connectedEntityId) {
         return apiRequest(HttpMethod.POST, null, null,  organizationId, applicationId,
                 connectingEntityType, connectingEntityId, connectionType,

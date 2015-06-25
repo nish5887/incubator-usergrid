@@ -32,18 +32,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 public class Entity {
 
     public final static String PROPERTY_UUID = "uuid";
     public final static String PROPERTY_TYPE = "type";
 
-    protected Map<String, JsonNode> properties = new HashMap<String, JsonNode>();
-
     public static Map<String, Class<? extends Entity>> CLASS_FOR_ENTITY_TYPE = new HashMap<String, Class<? extends Entity>>();
+
     static {
         CLASS_FOR_ENTITY_TYPE.put(User.ENTITY_TYPE, User.class);
     }
+
+    protected Map<String, JsonNode> properties = new HashMap<String, JsonNode>();
 
     public Entity() {
     }
@@ -94,7 +96,6 @@ public class Entity {
             properties.put(name, value);
         }
     }
-
 
     /**
      * Set the property
@@ -175,7 +176,7 @@ public class Entity {
     }
 
     public static <T extends Entity> List<T> toType(List<Entity> entities,
-            Class<T> t) {
+                                                    Class<T> t) {
         List<T> l = new ArrayList<T>(entities != null ? entities.size() : 0);
         if (entities != null) {
             for (Entity entity : entities) {
