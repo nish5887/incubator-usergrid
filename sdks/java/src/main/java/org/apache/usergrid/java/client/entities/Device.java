@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.apache.usergrid.java.client.utils.JsonUtils;
 
 public class Device extends Entity {
 
@@ -58,7 +59,7 @@ public class Device extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getName() {
-		return getStringProperty(properties, PROPERTY_NAME);
+		return JsonUtils.getStringProperty(properties, PROPERTY_NAME);
 	}
 
 	public void setName(String name) {

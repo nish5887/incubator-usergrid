@@ -1276,4 +1276,9 @@ public class SingletonClient {
     return new QueueQuery(response, method, params, data, queuePath);
   }
 
+  public class QueryBuilder {
+    public QueryBuilder collection(String pets) {
+      return this;
+    }
+  }
 }

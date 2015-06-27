@@ -29,13 +29,13 @@ public class ClientConsumer {
     new Entity("<uuid>").delete();
 
     // DAO pattern: entity
-    Entity e = new Entity("<uuid>");
-    e.collection("pets");
-    e.setType("pets");
-    e.setProperty("breed", "terrier");
-    e.setProperty("color", "black");
-    e.setProperty("weight", "black");
-    e.save();
+//    Entity e = new Entity("<uuid>");
+//    e.collection("pets");
+//    e.setType("pets");
+//    e.setProperty("breed", "terrier");
+//    e.setProperty("color", "black");
+//    e.setProperty("weight", "black");
+//    e.save();
 
   // DAO pattern: connection
 //    UGConnection ugConnection = new UGConnection();

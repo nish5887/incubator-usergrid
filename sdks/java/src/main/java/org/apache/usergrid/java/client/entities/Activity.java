@@ -32,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
+import org.apache.usergrid.java.client.utils.JsonUtils;
 
 /**
  * An entity type for representing activity stream actions. These are similar to
@@ -148,7 +149,7 @@ public class Activity extends Entity {
         actor.setObjectType("person");
 
         if (user != null) {
-            actor.setDisplayName(getStringProperty(user.properties, "name"));
+            actor.setDisplayName(JsonUtils.getStringProperty(user.properties, "name"));
             actor.setEntityType(user.getType());
             actor.setUuid(user.getUuid());
         }

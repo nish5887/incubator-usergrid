@@ -24,6 +24,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.apache.usergrid.java.client.utils.JsonUtils;
 
 public class Group extends Entity {
 
@@ -60,7 +61,7 @@ public class Group extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getPath() {
-		return getStringProperty(properties, PROPERTY_PATH);
+		return JsonUtils.getStringProperty(properties, PROPERTY_PATH);
 	}
 
 	public void setPath(String path) {
@@ -69,7 +70,7 @@ public class Group extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getTitle() {
-		return getStringProperty(properties, PROPERTY_TITLE);
+		return JsonUtils.getStringProperty(properties, PROPERTY_TITLE);
 	}
 
 	public void setTitle(String title) {

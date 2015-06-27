@@ -33,6 +33,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
+import org.apache.usergrid.java.client.utils.JsonUtils;
 
 public class Message extends Entity {
 
@@ -91,7 +92,7 @@ public class Message extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getDestination() {
-		return getStringProperty(properties, PROPERTY_DESTINATION);
+		return JsonUtils.getStringProperty(properties, PROPERTY_DESTINATION);
 	}
 
 	public void setDestination(String destination) {
@@ -101,7 +102,7 @@ public class Message extends Entity {
 	@JsonSerialize(include = NON_NULL)
 	@JsonProperty(PROPERTY_REPLY_TO)
 	public String getReplyTo() {
-		return getStringProperty(properties, PROPERTY_DESTINATION);
+		return JsonUtils.getStringProperty(properties, PROPERTY_DESTINATION);
 	}
 
 	@JsonProperty(PROPERTY_REPLY_TO)
@@ -120,7 +121,7 @@ public class Message extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getCategory() {
-		return getStringProperty(properties, PROPERTY_CATEGORY);
+		return JsonUtils.getStringProperty(properties, PROPERTY_CATEGORY);
 	}
 
 	public void setCategory(String category) {

@@ -1,5 +1,6 @@
 import org.apache.usergrid.java.client.Client;
 import org.apache.usergrid.java.client.SingletonClient;
+import org.apache.usergrid.java.client.builder.QueryBuilder;
 import org.apache.usergrid.java.client.entities.Entity;
 import org.apache.usergrid.java.client.response.ApiResponse;
 
@@ -18,7 +19,7 @@ public class ConnectorsClientV2 {
     FileInputStream f = null;
 
     try {
-      f = new FileInputStream("/Users/ApigeeCorporation/code/usergrid/myfork/incubator-usergrid/sdks/java/src/main/resources/example.properties");
+      f = new FileInputStream("/Users/ApigeeCorporation/code/usergrid/myfork/incubator-usergrid/sdks/java/src/main/resources/secure/api-connectors.properties");
       props.load(f);
     } catch (FileNotFoundException e) {
       e.printStackTrace();
@@ -60,5 +61,59 @@ public class ConnectorsClientV2 {
 
     client.connectEntities(pet, owner, "ownedBy");
     client.connectEntities(owner, pet, "owns");
+
+//// GET /org/app/pets?ql=select * where
+//// name="max"
+//// and name contians "max"
+//// and age gte 10
+//// and age gte 10
+//// and age gte 10
+//
+//    QueryBuilder query = SingletonClient.QueryBuilder
+//        .type("pets")
+//        .filter("name", "max")
+//        .containsWord("name", "max") // true: "max is my cat" / false: "maxisnotmycat"
+//        .containsText("name", "max")// true: "max is my cat" / true: "maxisnotmycat"
+//        .startsWith("name", "max")
+//        .endsWith("name", "max")
+//        .endsWith("name", "max")
+//        .limit(10)
+//        .offset(10)
+//        .attributeExists("mustHave")
+//        .descending("age")
+//        .ascending("age")
+//        .gte("age", 10)
+//        .gt("age", 10)
+//        .lt("age", 10)
+//        .lte("age", 10)
+//        .build();
+//
+//    ApiResponse response2 = query.get();
+
+//    client.createEntityAsync(entity, new ApiResponseCallback(){
+//      @Override
+//      public void onException(Exception ex) {
+//        Log.i("NewBook", ex.getMessage());
+//      }
+//
+//      @Override
+//      public void onResponse(ApiResponse response) {
+//        CounterIncrement counterIncrement = new CounterIncrement();
+//        counterIncrement.setCounterName("book_add");
+//        client.createEventAsync(null, counterIncrement, new ApiResponseCallback(){
+//          @Override
+//          public void onException(Exception ex) {
+//            Log.i("book_add", ex.getMessage());
+//          }
+//
+//          @Override
+//          public void onResponse(ApiResponse counterResponse) {
+//            Log.i("book_add", "counter incremented");
+//          }
+//        });
+//        finish();
+//      }
+//    });
+
   }
 }

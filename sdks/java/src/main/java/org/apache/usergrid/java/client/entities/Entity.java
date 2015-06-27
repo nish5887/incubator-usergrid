@@ -194,13 +194,9 @@ public class Entity {
 
   public void save() {
     ApiResponse response = SingletonClient.getInstance().updateEntity(this);
+    System.out.println(response);
     String uuid = response.getFirstEntity().getStringProperty("uuid");
     this.setUuid(UUID.fromString(uuid));
-//    System.out.println(response);
-  }
-
-  public void collection(final String pets) {
-
   }
 
   public void delete() {

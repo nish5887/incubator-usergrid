@@ -26,6 +26,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.apache.usergrid.java.client.utils.JsonUtils;
 
 public class User extends Entity {
 
@@ -76,7 +77,7 @@ public class User extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getUsername() {
-		return getStringProperty(properties, PROPERTY_USERNAME);
+		return JsonUtils.getStringProperty(properties, PROPERTY_USERNAME);
 	}
 
 	public void setUsername(String username) {
@@ -85,7 +86,7 @@ public class User extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getName() {
-		return getStringProperty(properties, PROPERTY_NAME);
+		return JsonUtils.getStringProperty(properties, PROPERTY_NAME);
 	}
 
 	public void setName(String name) {
@@ -94,7 +95,7 @@ public class User extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getEmail() {
-		return getStringProperty(properties, PROPERTY_EMAIL);
+		return JsonUtils.getStringProperty(properties, PROPERTY_EMAIL);
 	}
 
 	public void setEmail(String email) {
@@ -121,7 +122,7 @@ public class User extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getFirstname() {
-		return getStringProperty(properties, PROPERTY_FIRSTNAME);
+		return JsonUtils.getStringProperty(properties, PROPERTY_FIRSTNAME);
 	}
 
 	public void setFirstname(String firstname) {
@@ -130,7 +131,7 @@ public class User extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getMiddlename() {
-		return getStringProperty(properties, PROPERTY_MIDDLENAME);
+		return JsonUtils.getStringProperty(properties, PROPERTY_MIDDLENAME);
 	}
 
 	public void setMiddlename(String middlename) {
@@ -139,7 +140,7 @@ public class User extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getLastname() {
-		return getStringProperty(properties, PROPERTY_LASTNAME);
+		return JsonUtils.getStringProperty(properties, PROPERTY_LASTNAME);
 	}
 
 	public void setLastname(String lastname) {
@@ -148,7 +149,7 @@ public class User extends Entity {
 
 	@JsonSerialize(include = NON_NULL)
 	public String getPicture() {
-		return getStringProperty(properties, PROPERTY_PICTURE);
+		return JsonUtils.getStringProperty(properties, PROPERTY_PICTURE);
 	}
 
 	public void setPicture(String picture) {
