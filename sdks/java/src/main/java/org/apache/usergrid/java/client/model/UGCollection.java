@@ -17,4 +17,9 @@ public class UGCollection extends
     public UGEntity newEntity() {
             return null;
     }
+
+  @Override
+  public void set(String breed, String terrier) {
+
+  }
 }

@@ -33,9 +33,6 @@ public abstract class UGObject {
     return client.get(this);
   }
 
-  public UGResult create() {
-    return UsergridClient.post(this);
-  }
 
 
   public UGEntity newEntity(final String name) {

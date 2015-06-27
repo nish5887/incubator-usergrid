@@ -9,6 +9,6 @@ public class UGEntity {
 
 
     public UGEntity(UsergridClient client) {
-        super(client);
+//        super(client);
     }
 }

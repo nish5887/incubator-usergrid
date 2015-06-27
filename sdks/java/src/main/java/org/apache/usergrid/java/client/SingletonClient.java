@@ -16,47 +16,31 @@
  */
 package org.apache.usergrid.java.client;
 
-import static org.springframework.util.StringUtils.arrayToDelimitedString;
-import static org.springframework.util.StringUtils.tokenizeToStringArray;
-import static org.apache.usergrid.java.client.utils.JsonUtils.parse;
-import static org.apache.usergrid.java.client.utils.ObjectUtils.isEmpty;
-import static org.apache.usergrid.java.client.utils.UrlUtils.addQueryParams;
-import static org.apache.usergrid.java.client.utils.UrlUtils.encodeParams;
-import static org.apache.usergrid.java.client.utils.UrlUtils.path;
-
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.apache.usergrid.java.client.entities.*;
+import org.apache.usergrid.java.client.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.apache.usergrid.java.client.entities.Activity;
-import org.apache.usergrid.java.client.entities.Device;
-import org.apache.usergrid.java.client.entities.Entity;
-import org.apache.usergrid.java.client.entities.Group;
-import org.apache.usergrid.java.client.entities.User;
-import org.apache.usergrid.java.client.response.ApiResponse;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.apache.usergrid.java.client.utils.JsonUtils.parse;
+import static org.apache.usergrid.java.client.utils.ObjectUtils.isEmpty;
+import static org.apache.usergrid.java.client.utils.UrlUtils.*;
+import static org.springframework.util.StringUtils.arrayToDelimitedString;
+import static org.springframework.util.StringUtils.tokenizeToStringArray;
 
 /**
  * The Client class for accessing the Usergrid API. Start by instantiating this
  * class though the appropriate constructor.
  */
-public class Client {
+public class SingletonClient {
 
-  private static final Logger log = LoggerFactory.getLogger(Client.class);
+  private static final Logger log = LoggerFactory.getLogger(SingletonClient.class);
 
   public static boolean FORCE_PUBLIC_API = false;
 
@@ -87,27 +71,14 @@ public class Client {
 
   static RestTemplate restTemplate = new RestTemplate();
 
+  static Map<String, Client> instance_map = new HashMap<>(3);
+
   /**
    * Default constructor for instantiating a client.
    */
-  public Client() {
-    init();
+  private SingletonClient() {
   }
 
-  /**
-   * Instantiate client for a specific app
-   *
-   * @param applicationId the application id or name
-   */
-  public Client(String organizationId, String applicationId) {
-    init();
-    this.organizationId = organizationId;
-    this.applicationId = applicationId;
-  }
-
-  public void init() {
-
-  }
 
   /**
    * @return the Usergrid API url (default: http://api.usergrid.com)
@@ -127,11 +98,10 @@ public class Client {
    * @param apiUrl the Usergrid API url (default: http://api.usergrid.com)
    * @return Client object for method call chaining
    */
-  public Client withApiUrl(String apiUrl) {
+  public SingletonClient withApiUrl(String apiUrl) {
     this.apiUrl = apiUrl;
     return this;
   }
-
 
   /**
    * the organizationId to set
@@ -139,7 +109,7 @@ public class Client {
    * @param organizationId
    * @return
    */
-  public Client withOrganizationId(String organizationId) {
+  public SingletonClient withOrganizationId(String organizationId) {
     this.organizationId = organizationId;
     return this;
   }
@@ -178,7 +148,7 @@ public class Client {
    * @param applicationId the application id or name
    * @return Client object for method call chaining
    */
-  public Client withApplicationId(String applicationId) {
+  public SingletonClient withApplicationId(String applicationId) {
     this.applicationId = applicationId;
     return this;
   }
@@ -204,7 +174,7 @@ public class Client {
    *                 Not safe for most mobile use.
    * @return Client object for method call chaining
    */
-  public Client withClientId(String clientId) {
+  public SingletonClient withClientId(String clientId) {
     this.clientId = clientId;
     return this;
   }
@@ -230,7 +200,7 @@ public class Client {
    *                     Not safe for most mobile use.
    * @return Client object for method call chaining
    */
-  public Client withClientSecret(String clientSecret) {
+  public SingletonClient withClientSecret(String clientSecret) {
     this.clientSecret = clientSecret;
     return this;
   }
@@ -586,33 +556,6 @@ public class Client {
     return response;
   }
 
-
-  /**
-   * Create a new e on the server.
-   *
-   * @param e
-   * @return an ApiResponse with the new e in it.
-   */
-  public ApiResponse updateEntity(Entity e) {
-
-    if (isEmpty(e.getType())) {
-      throw new IllegalArgumentException("Entity is required to have a 'type' property and does not");
-    }
-
-    String name = e.getStringProperty("name");
-    String uuid = e.getStringProperty("uuid");
-
-    if (name == null && uuid == null)
-      return this.createEntity(e);
-
-    String entityIdentifier = (uuid != null ? uuid : name);
-
-    assertValidApplicationId();
-
-    return apiRequest(HttpMethod.PUT, null, e,
-        organizationId, applicationId, e.getType(), entityIdentifier);
-  }
-
   /**
    * Create a new entity on the server from a set of properties. Properties
    * must include a "type" property.
@@ -625,8 +568,9 @@ public class Client {
     if (isEmpty(properties.get("type"))) {
       throw new IllegalArgumentException("Missing entity type");
     }
-    return apiRequest(HttpMethod.POST, null, properties,
+    ApiResponse response = apiRequest(HttpMethod.POST, null, properties,
         organizationId, applicationId, properties.get("type").toString());
+    return response;
   }
 
   /**
@@ -1056,11 +1000,34 @@ public class Client {
 
   }
 
-  public ApiResponse connectEntities(Entity pet, Entity owner, String ownedBy) {
+  public static void initialize(String orgName, String appName) {
+    Client client = getInstance();
+    client.setOrganizationId(orgName);
+    client.setApplicationId(appName);
+  }
 
-    // check for UUIDs
+  public static void initialize(String apiUrl, String orgName, String appName) {
+    Client client = getInstance();
+    client.setApiUrl(apiUrl);
+    client.setOrganizationId(orgName);
+    client.setApplicationId(appName);
+  }
 
-    return this.connectEntities(pet.getType(), pet.getUuid().toString(), "ownedBy", owner.getUuid().toString());
+  public static Client getInstance(String instanceId) {
+
+    Client client = instance_map.get(instanceId);
+
+    if (client == null) {
+      client = new Client();
+      instance_map.put(instanceId, client);
+    }
+
+    return client;
+  }
+
+  public static Client getInstance() {
+
+    return getInstance("default");
   }
 
   public interface Query {

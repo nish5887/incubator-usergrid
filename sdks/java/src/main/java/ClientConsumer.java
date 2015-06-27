@@ -15,15 +15,15 @@ public class ClientConsumer {
   public static void main(String[] args) {
 
     // need a singleton client
-    Client
-        .withClientId("")
-        .withApiUrl("")
-        .withDefaultCollection("")
-    .build();
+//    Client
+//        .withClientId("")
+//        .withApiUrl("")
+//        .withDefaultCollection("")
+//    .build();
 
     //easily delete entity by UUID
-    Entity.UUID("<uuid>").delete();
-    Entity.UUID("<uuid>").get();
+//    Entity.UUID("<uuid>").delete();
+//    Entity.UUID("<uuid>").get();
 
     // this incurs object creation and GC cost
     new Entity("<uuid>").delete();
@@ -38,10 +38,10 @@ public class ClientConsumer {
     e.save();
 
   // DAO pattern: connection
-    UGConnection ugConnection = new UGConnection();
-    ugConnection.source("<uuid>");
-    ugConnection.target("<uuid>");
-    ugConnection.target("<collection>", "<name>");
-    ugConnection.save();
+//    UGConnection ugConnection = new UGConnection();
+//    ugConnection.source("<uuid>");
+//    ugConnection.target("<uuid>");
+//    ugConnection.target("<collection>", "<name>");
+//    ugConnection.save();
   }
 }
