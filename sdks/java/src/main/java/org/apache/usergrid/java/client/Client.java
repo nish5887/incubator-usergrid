@@ -1056,11 +1056,11 @@ public class Client {
 
   }
 
-  public ApiResponse connectEntities(Entity pet, Entity owner, String ownedBy) {
+  public ApiResponse connectEntities(Entity pet, Entity owner, String connetionName) {
 
     // check for UUIDs
 
-    return this.connectEntities(pet.getType(), pet.getUuid().toString(), "ownedBy", owner.getUuid().toString());
+    return this.connectEntities(pet.getType(), pet.getUuid().toString(), connetionName, owner.getUuid().toString());
   }
 
   public interface Query {
