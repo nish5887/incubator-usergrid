@@ -56,7 +56,7 @@ public class Client {
   public static boolean FORCE_PUBLIC_API = false;
 
   // Public API
-  public static String PUBLIC_API_URL = "http://api.usergrid.com";
+  public static String PUBLIC_API_URL = "http://localhost:8080";
 
   // Local API of standalone server
   public static String LOCAL_STANDALONE_API_URL = "http://localhost:8080";
@@ -537,7 +537,7 @@ public class Client {
    */
   public Device registerDevice(UUID deviceId, Map<String, Object> properties) {
     assertValidApplicationId();
-    if (properties == null) {
+      if (properties == null) {
       properties = new HashMap<String, Object>();
     }
     properties.put("refreshed", System.currentTimeMillis());
@@ -573,7 +573,7 @@ public class Client {
    */
   public ApiResponse createEntity(Entity entity) {
     assertValidApplicationId();
-    if (isEmpty(entity.getType())) {
+      if (isEmpty(entity.getType())) {
       throw new IllegalArgumentException("Missing entity type");
     }
     ApiResponse response = apiRequest(HttpMethod.POST, null, entity,
@@ -604,8 +604,8 @@ public class Client {
 
     assertValidApplicationId();
 
-    return apiRequest(HttpMethod.PUT, null, e,
-        organizationId, applicationId, e.getType(), entityIdentifier);
+      return apiRequest(HttpMethod.PUT, null, e,
+              organizationId, applicationId, e.getType(), entityIdentifier);
   }
 
   /**
@@ -727,7 +727,7 @@ public class Client {
    */
   public ApiResponse postGroupActivity(String groupId, Activity activity) {
     return apiRequest(HttpMethod.POST, null, activity, organizationId, applicationId, "groups",
-        groupId, "activities");
+            groupId, "activities");
   }
 
   /**
@@ -793,8 +793,8 @@ public class Client {
    */
   public Query queryActivity() {
     Query q = queryEntitiesRequest(HttpMethod.GET, null, null,
-        organizationId, applicationId, "activities");
-    return q;
+            organizationId, applicationId, "activities");
+      return q;
   }
 
 
@@ -824,7 +824,7 @@ public class Client {
   public Query queryEntitiesRequest(HttpMethod method,
                                     Map<String, Object> params, Object data, String... segments) {
     ApiResponse response = apiRequest(method, params, data, segments);
-    return new EntityQuery(response, method, params, data, segments);
+      return new EntityQuery(response, method, params, data, segments);
   }
 
   /**
@@ -834,8 +834,8 @@ public class Client {
    */
   public Query queryUsers() {
     Query q = queryEntitiesRequest(HttpMethod.GET, null, null,
-        organizationId, applicationId, "users");
-    return q;
+            organizationId, applicationId, "users");
+      return q;
   }
 
   /**
@@ -872,6 +872,16 @@ public class Client {
         applicationId, "users");
     return q;
   }
+
+    public ApiResponse queryEntity(String type,String id) {
+        return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
+                type,id);
+    }
+
+    public ApiResponse deleteEntity(String type,String id) {
+        return apiRequest(HttpMethod.DELETE, null, null, organizationId, applicationId,
+                type,id);
+    }
 
   /**
    * Queries the users for the specified group.
@@ -997,11 +1007,6 @@ public class Client {
         connectedEntityId);
   }
 
-  public ApiResponse queryEntity(String type,String id) {
-    return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
-            type,id);
-  }
-
   /**
    * Query the connected entities.
    *
@@ -1024,8 +1029,8 @@ public class Client {
   protected String makeLocationQL(float distance, double lattitude,
                                   double longitude, String ql) {
     String within = String.format("within %d of %d , %d", distance,
-        lattitude, longitude);
-    ql = ql == null ? within : within + " and " + ql;
+            lattitude, longitude);
+      ql = ql == null ? within : within + " and " + ql;
     return ql;
   }
 
@@ -1056,18 +1061,15 @@ public class Client {
 
   }
 
-
   public ApiResponse connectEntities(Entity sourceVertex, Entity TargetVertex, String connetionName) {
 
     return this.connectEntities(sourceVertex.getType(), sourceVertex.getUuid().toString(), connetionName, TargetVertex.getUuid().toString());
   }
 
 
-
   public Entity getEntity(String s) {
     return null ;
   }
-
 
   public interface Query {
 
