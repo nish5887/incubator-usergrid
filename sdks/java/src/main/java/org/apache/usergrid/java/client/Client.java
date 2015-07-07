@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import org.apache.usergrid.java.client.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -43,11 +43,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.apache.usergrid.java.client.entities.Activity;
-import org.apache.usergrid.java.client.entities.Device;
-import org.apache.usergrid.java.client.entities.Entity;
-import org.apache.usergrid.java.client.entities.Group;
-import org.apache.usergrid.java.client.entities.User;
 import org.apache.usergrid.java.client.response.ApiResponse;
 
 /**
@@ -1066,15 +1061,15 @@ public class Client {
 
   }
 
-  /*
-  public ApiResponse connectEntities(Entity pet, Entity owner, String connetionName) {
+  public ApiResponse connectEntities(Entity sourceVertex, Entity TargetVertex, String connetionName) {
 
-    // check for UUIDs
-
-    return this.connectEntities(pet.getType(), pet.getUuid().toString(), connetionName, owner.getUuid().toString());
+    return this.connectEntities(sourceVertex.getType(), sourceVertex.getUuid().toString(), connetionName, TargetVertex.getUuid().toString());
   }
 
-*/
+
+  public Entity getEntity(String s) {
+    return null ;
+  }
 
   public interface Query {
 

@@ -5,7 +5,7 @@ import org.apache.usergrid.java.client.response.ApiResponse;
 /**
  * Created by ApigeeCorporation on 6/26/15.
  */
-public class ConnectorsClientV1 {
+public class  ConnectorsClientV1 {
 
   public static void main(String[] args) {
 

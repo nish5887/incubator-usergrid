@@ -19,7 +19,7 @@ public class ConnectorsClientV2 {
     FileInputStream f = null;
 
     try {
-      f = new FileInputStream("/Users/ApigeeCorporation/code/usergrid/myfork/incubator-usergrid/sdks/java/src/main/resources/secure/api-connectors.properties");
+      f = new FileInputStream("/Users/ayeshadastagiri/incubator-usergrid/sdks/java/src/main/resources/example.properties");
       props.load(f);
     } catch (FileNotFoundException e) {
       e.printStackTrace();
