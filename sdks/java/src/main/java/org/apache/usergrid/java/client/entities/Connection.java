@@ -21,19 +21,41 @@ import static org.apache.usergrid.java.client.utils.JsonUtils.setStringProperty;
 public class Connection {
 
     protected Map<String, JsonNode> properties = new HashMap<String, JsonNode>();
-    public final static String PROPERTY_SOURCE = "sname";
+    public final static String LABEL = "label";
+
     public final static String PROPERTY_ID = "eId";
 
     Client client ;
-    Entity sSource ;
 
     protected Connection(){
 
     }
 
+    public void setLabel(String label) {
+        setStringProperty(properties,LABEL,label);
+    }
 
-    public String getType() {
-        return this.getType();
+    public void setConnectionID(String connID) {
+        setStringProperty(properties,PROPERTY_ID, connID);
+        System.out.println("prop name for edge : " + getStringProperty(properties,PROPERTY_ID));
+    }
+
+    public String getLabel() {
+        return getStringProperty(properties,LABEL);
+    }
+
+
+    public void setClientConnection(Client client) {
+        this.client = client;
+    }
+
+    public Client getClientConnection(){
+        return this.client;
+    }
+
+    public String getPropertyId() {
+        System.out.println("get id  :" + getStringProperty(properties,PROPERTY_ID));
+        return getStringProperty(properties,PROPERTY_ID);
     }
 
 
@@ -56,33 +78,6 @@ public class Connection {
 //    public String getStringProperty(String label) {
 //        return null;
 //    }
-
-
-    public void setLabel(String label) {
-        setStringProperty(properties,PROPERTY_SOURCE,label);
-    }
-
-    public void setConnectionID(String source, String label, String target) {
-        setStringProperty(properties,PROPERTY_ID, new String(source+"-->"+label+"-->"+target));
-        System.out.println("prop name for edge : " + getStringProperty(properties,PROPERTY_ID));
-    }
-
-    public void setClientDetails(Client client) {
-        this.client = client;
-    }
-
-    public Client getClientConnection(){
-        return this.client;
-    }
-
-    public String getPropertyId() {
-        System.out.println("get id  :" + getStringProperty(properties,PROPERTY_ID));
-        return getStringProperty(properties,PROPERTY_ID);
-    }
-
-
-
-
 
 
 }
