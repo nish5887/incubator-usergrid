@@ -1007,6 +1007,22 @@ public class Client {
         connectedEntityId);
   }
 
+
+  /**
+   *
+   * @param sourceVertex
+   * @param TargetVertex
+   * @param connetionName
+   * @return
+   */
+  public ApiResponse disconnectEntities(Entity sourceVertex, Entity TargetVertex, String connetionName) {
+
+    return apiRequest(HttpMethod.DELETE, null, null, organizationId, applicationId,
+            sourceVertex.getType(), sourceVertex.getUuid().toString(), connetionName,
+            TargetVertex.getUuid().toString());
+  }
+
+
   /**
    * Query the connected entities.
    *
@@ -1065,6 +1081,13 @@ public class Client {
 
     return this.connectEntities(sourceVertex.getType(), sourceVertex.getUuid().toString(), connetionName, TargetVertex.getUuid().toString());
   }
+
+
+  public ApiResponse queryConnection(String srcType,String srcID,String label) {
+    return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
+            srcType,srcID,label);
+  }
+
 
 
   public Entity getEntity(String s) {
