@@ -63,7 +63,7 @@ public class Connection {
     }
 
     public void setConnectionID(String source, String label, String target) {
-        setStringProperty(properties,PROPERTY_ID, new String(source+"/"+label+"/"+target));
+        setStringProperty(properties,PROPERTY_ID, new String(source+"-->"+label+"-->"+target));
         System.out.println("prop name for edge : " + getStringProperty(properties,PROPERTY_ID));
     }
 
@@ -81,43 +81,7 @@ public class Connection {
     }
 
 
-    public String getLable() {
-        String propId =  getStringProperty(properties,PROPERTY_ID);
-        String[] idArray = propId.split("/");
-        return idArray[1];
-    }
 
-
-    /**
-     * returns the source
-     * @param client
-     * @return
-     */
-    public Entity getSource(Client client, String propId) {
-//        String propId =  getStringProperty(properties,PROPERTY_ID);
-        String source = propId.split("/")[0];
-        ApiResponse response = client.queryEntity(source.split(":")[0] , source.split(":")[1]);
-        String uuid = response.getFirstEntity().getStringProperty("uuid");
-        if (uuid == null )
-            new IllegalArgumentException("the source vertex is invalid. No such vertex exists in the graph");
-        Entity e = new Entity();
-
-        e.setUuid(UUID.fromString(uuid));
-        return e;
-    }
-
-    public Entity getTarget(Client client, String propId) {
-//        String propId =  getStringProperty(properties,PROPERTY_ID);
-        String source = propId.split("/")[2];
-        ApiResponse response = client.queryEntity(source.split(":")[0] , source.split(":")[1]);
-        String uuid = response.getFirstEntity().getStringProperty("uuid");
-        if (uuid == null )
-            new IllegalArgumentException("the target vertex is invalid. No such vertex exists in the graph");
-        Entity e = new Entity();
-        e.setUuid(UUID.fromString(uuid));
-        return e;
-
-    }
 
 
 
