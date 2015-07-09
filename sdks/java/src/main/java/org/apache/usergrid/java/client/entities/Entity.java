@@ -36,6 +36,7 @@ import org.apache.usergrid.java.client.Client;
 import org.apache.usergrid.java.client.SingletonClient;
 import org.apache.usergrid.java.client.response.ApiResponse;
 import org.apache.usergrid.java.client.utils.JsonUtils;
+import org.springframework.http.HttpMethod;
 
 public class Entity {
 
@@ -200,8 +201,9 @@ public class Entity {
   }
 
   public void delete() {
-    //check if the UUID is set,
-    // or the name
+      ApiResponse response = SingletonClient.getInstance().deleteEntity(this.getType().toString(),this.getUuid().toString());
+      System.out.println(response);
+
   }
 
   public String getStringProperty(String name) {

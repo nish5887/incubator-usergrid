@@ -604,9 +604,17 @@ public class Client {
 
     assertValidApplicationId();
 
-      return apiRequest(HttpMethod.PUT, null, e,
+      return apiRequest(HttpMethod.PUT, null, e.getProperties(),
               organizationId, applicationId, e.getType(), entityIdentifier);
   }
+
+    public ApiResponse updateEntity(Map<String, Object> properties) {
+        assertValidApplicationId();
+        String uuid = properties.get("uuid").toString();
+        String entityIdentifier = uuid;
+        return apiRequest(HttpMethod.PUT, null, properties,
+                organizationId, applicationId, properties.get("type").toString(), entityIdentifier);
+    }
 
   /**
    * Create a new entity on the server from a set of properties. Properties
@@ -623,6 +631,7 @@ public class Client {
     return apiRequest(HttpMethod.POST, null, properties,
         organizationId, applicationId, properties.get("type").toString());
   }
+
 
   /**
    * Creates a user.
@@ -1085,7 +1094,7 @@ public class Client {
 
   public ApiResponse queryConnection(String srcType,String srcID,String label) {
     return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
-            srcType,srcID,label);
+            srcType, srcID, label);
   }
 
 
