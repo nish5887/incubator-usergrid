@@ -517,7 +517,7 @@ public class ManagementServiceImpl implements ManagementService {
             }
 
             logger.debug("User created");
-            organization = createOrganizationInternal( organizationName, user, true, organizationProperties );
+            organization = createOrganizationInternal( null, organizationName, user, true, organizationProperties );
         }
         finally {
             emailLock.unlock();
@@ -529,14 +529,14 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
 
-    private OrganizationInfo createOrganizationInternal( String organizationName, UserInfo user, boolean activated )
+    private OrganizationInfo createOrganizationInternal( UUID orgUuid, String organizationName, UserInfo user, boolean activated )
             throws Exception {
         logger.debug("createOrganizationInternal1");
-        return createOrganizationInternal( organizationName, user, activated, null );
+        return createOrganizationInternal( orgUuid, organizationName, user, activated, null );
     }
 
 
-    private OrganizationInfo createOrganizationInternal( String organizationName, UserInfo user, boolean activated,
+    private OrganizationInfo createOrganizationInternal( UUID orgUuid, String organizationName, UserInfo user, boolean activated,
                                                          Map<String, Object> properties ) throws Exception {
 
         logger.info( "createOrganizationInternal2: {}", organizationName );
@@ -554,7 +554,13 @@ public class ManagementServiceImpl implements ManagementService {
 
         Group organizationEntity = new Group();
         organizationEntity.setPath( organizationName );
-        organizationEntity = em.create( organizationEntity );
+
+        if ( orgUuid == null ) {
+            organizationEntity = em.create( organizationEntity );
+        } else {
+            em.create( orgUuid, Group.ENTITY_TYPE, organizationEntity.getProperties() );
+            organizationEntity = em.get( orgUuid, Group.class );
+        }
 
         em.addToCollection( organizationEntity, "users", new SimpleEntityRef( User.ENTITY_TYPE, user.getUuid() ) );
 
@@ -567,12 +573,16 @@ public class ManagementServiceImpl implements ManagementService {
                 new OrganizationInfo( organizationEntity.getUuid(), organizationName, properties );
         updateOrganization( organization );
 
-        postOrganizationActivity( organization.getUuid(), user, "create", organizationEntity, "Organization",
-                organization.getName(),
-                "<a href=\"mailto:" + user.getEmail() + "\">" + user.getName() + " (" + user.getEmail()
-                        + ")</a> created a new organization account named " + organizationName, null );
+        if ( orgUuid == null ) { // no import ID specified, so do the activation email flow stuff
 
-        startOrganizationActivationFlow( organization );
+            logger.info( "createOrganizationInternal: {}", organizationName );
+            postOrganizationActivity( organization.getUuid(), user, "create", organizationEntity, "Organization",
+                    organization.getName(),
+                    "<a href=\"mailto:" + user.getEmail() + "\">" + user.getName() + " (" + user.getEmail()
+                            + ")</a> created a new organization account named " + organizationName, null );
+
+            startOrganizationActivationFlow( organization );
+        }
 
 
 
@@ -581,7 +591,13 @@ public class ManagementServiceImpl implements ManagementService {
 
 
     @Override
-    public OrganizationInfo createOrganization( String organizationName, UserInfo user, boolean activated )
+    public OrganizationInfo createOrganization(String organizationName, UserInfo user, boolean activated)
+            throws Exception {
+        return createOrganization( null, organizationName, user, activated );
+    }
+
+    @Override
+    public OrganizationInfo createOrganization(UUID orgUuid, String organizationName, UserInfo user, boolean activated)
             throws Exception {
 
         if (  organizationName == null ) {
@@ -601,7 +617,7 @@ public class ManagementServiceImpl implements ManagementService {
         }
         try {
             groupLock.lock();
-            return createOrganizationInternal( organizationName, user, activated );
+            return createOrganizationInternal( orgUuid, organizationName, user, activated );
         }
         finally {
             groupLock.unlock();
@@ -702,7 +718,8 @@ public class ManagementServiceImpl implements ManagementService {
      * (and that organization is needed) if so.
      */
     private String buildAppName( String applicationName, OrganizationInfo organization ) {
-        return applicationName.contains( "/" ) ? applicationName : organization.getName() + "/" + applicationName;
+        return org.apache.commons.lang.StringUtils.lowerCase(
+                applicationName.contains( "/" ) ? applicationName : organization.getName() + "/" + applicationName);
     }
 
 
@@ -1443,6 +1460,13 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
 
+    @Override
+    public void importTokenForAdminUser(UUID userId, String token, long ttl) throws Exception {
+        tokens.importToken( token, TokenCategory.ACCESS, null,
+                new AuthPrincipalInfo( ADMIN_USER, userId, smf.getManagementAppId() ), null, ttl );
+    }
+
+
     /*
    * (non-Javadoc)
    *
@@ -1509,11 +1533,16 @@ public class ManagementServiceImpl implements ManagementService {
                     path = path.toLowerCase();
                 }
 
-                organizations.put( entity.getUuid(), path );
+                try {
+                    organizations.put( entity.getUuid(), path );
+                } catch (IllegalArgumentException e) {
+                    logger.warn("Error adding " + entity.getUuid() + ":" + path + " to BiMap: " + e.getMessage() );
+                }
             }
 
             results = results.getNextPageResults();
-        }while(results != null);
+
+        } while(results != null);
 
         return organizations;
     }

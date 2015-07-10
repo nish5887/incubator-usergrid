@@ -17,33 +17,29 @@
 package org.apache.usergrid.tools;
 
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.io.filefilter.PrefixFileFilter;
+import org.apache.usergrid.management.OrganizationInfo;
+import org.apache.usergrid.management.UserInfo;
+import org.apache.usergrid.persistence.EntityManager;
+import org.apache.usergrid.persistence.EntityRef;
+import org.apache.usergrid.persistence.entities.User;
+import org.apache.usergrid.persistence.exceptions.DuplicateUniquePropertyExistsException;
 import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.commons.io.filefilter.PrefixFileFilter;
-
-import org.apache.usergrid.management.OrganizationInfo;
-import org.apache.usergrid.persistence.Entity;
-import org.apache.usergrid.persistence.EntityManager;
-import org.apache.usergrid.persistence.EntityRef;
-import org.apache.usergrid.persistence.entities.Application;
-import org.apache.usergrid.persistence.exceptions.DuplicateUniquePropertyExistsException;
-import org.apache.usergrid.utils.JsonUtils;
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.usergrid.persistence.Schema.PROPERTY_TYPE;
 import static org.apache.usergrid.persistence.Schema.PROPERTY_UUID;
@@ -57,180 +53,239 @@ import static org.apache.usergrid.persistence.cassandra.CassandraService.MANAGEM
  */
 public class ImportAdmins extends ToolBase {
 
-    private static final Logger logger = LoggerFactory.getLogger( ImportAdmins.class );
+    private static final Logger logger = LoggerFactory.getLogger(ImportAdmins.class);
 
     /**
      * Input directory where the .json export files are
      */
     static final String INPUT_DIR = "inputDir";
+    static final String WRITE_THREAD_COUNT = "writeThreads";
+    static final String AUDIT_THREAD_COUNT = "auditThreads";
 
     static File importDir;
 
     static final String DEFAULT_INPUT_DIR = "export";
 
+    private Map<Stoppable, Thread> adminWriteThreads = new HashMap<Stoppable, Thread>();
+    private Map<Stoppable, Thread> adminAuditThreads = new HashMap<Stoppable, Thread>();
+    private Map<Stoppable, Thread> metadataWorkerThreadMap = new HashMap<Stoppable, Thread>();
+
+
     JsonFactory jsonFactory = new JsonFactory();
 
 
     @Override
-    @SuppressWarnings( "static-access" )
+    @SuppressWarnings("static-access")
     public Options createOptions() {
 
-        Option hostOption =
-                OptionBuilder.withArgName( "host" ).hasArg().withDescription( "Cassandra host" ).create( "host" );
+        Option hostOption = OptionBuilder.withArgName("host")
+                .hasArg()
+                .withDescription("Cassandra host").create("host");
 
-        Option inputDir = OptionBuilder.hasArg().withDescription( "input directory -inputDir" ).create( INPUT_DIR );
+        Option inputDir = OptionBuilder
+                .hasArg()
+                .withDescription("input directory -inputDir").create(INPUT_DIR);
 
-        Option verbose =
-                OptionBuilder.withDescription( "Print on the console an echo of the content written to the file" )
-                             .create( VERBOSE );
+        Option writeThreads = OptionBuilder
+                .hasArg()
+                .withDescription("Write Threads -writeThreads").create(WRITE_THREAD_COUNT);
+
+        Option auditThreads = OptionBuilder
+                .hasArg()
+                .withDescription("Audit Threads -auditThreads").create(AUDIT_THREAD_COUNT);
+
+        Option verbose = OptionBuilder
+                .withDescription("Print on the console an echo of the content written to the file")
+                .create(VERBOSE);
 
         Options options = new Options();
-        options.addOption( hostOption );
-        options.addOption( inputDir );
-        options.addOption( verbose );
+        options.addOption(hostOption);
+        options.addOption(writeThreads);
+        options.addOption(auditThreads);
+        options.addOption(inputDir);
+        options.addOption(verbose);
 
         return options;
     }
 
 
     @Override
-    public void runTool( CommandLine line ) throws Exception {
+    public void runTool(CommandLine line) throws Exception {
+
         startSpring();
 
-        setVerbose( line );
+        setVerbose(line);
 
-        openImportDirectory( line );
+        openImportDirectory(line);
 
-        importApplications();
+        int auditThreadCount = 1;
+        int writeThreadCount = 1;
 
-        importCollections();
+        if (line.hasOption(AUDIT_THREAD_COUNT)) {
+            auditThreadCount = Integer.parseInt(line.getOptionValue(AUDIT_THREAD_COUNT));
+        }
 
-        //forces the counters to flush
-        logger.info( "Sleeping 35 seconds for batcher" );
+        if (line.hasOption(WRITE_THREAD_COUNT)) {
+            writeThreadCount = Integer.parseInt(line.getOptionValue(WRITE_THREAD_COUNT));
+        }
 
-        Thread.sleep( 35000 );
+        importAdminUsers(writeThreadCount, auditThreadCount);
+
+        importMetadata(writeThreadCount);
+
+        // forces the counters to flush
+//        logger.info( "Sleeping 35 seconds for batcher" );
+//        Thread.sleep( 35000 );
     }
 
 
     /**
-     * Import applications
+     * Import admin users.
      */
-    private void importApplications() throws Exception {
-        String[] nanemspaceFileNames = importDir.list( new PrefixFileFilter( "application." ) );
-        logger.info( "Applications to read: " + nanemspaceFileNames.length );
+    private void importAdminUsers(int writeThreadCount, int auditThreadCount) throws Exception {
 
-        //this fails on the second run of the applications find out why.
-        for ( String applicationName : nanemspaceFileNames ) {
+        String[] fileNames = importDir.list(new PrefixFileFilter(ExportAdmins.ADMIN_USERS_PREFIX + "."));
+
+        logger.info("Applications to read: " + fileNames.length);
+
+        for (String fileName : fileNames) {
             try {
-                importApplication( applicationName );
-            }
-            catch ( Exception e ) {
-                logger.warn( "Unable to import application: " + applicationName, e );
+                importAdminUsers(fileName, writeThreadCount, auditThreadCount);
+            } catch (Exception e) {
+                logger.warn("Unable to import application: " + fileName, e);
             }
         }
     }
 
 
     /**
-     * Imports a application
+     * Imports admin users.
      *
-     * @param applicationName file name where the application was exported.
+     * @param fileName Name of admin user data file.
      */
-    private void importApplication( String applicationName ) throws Exception {
-        // Open up application file.
-        File applicationFile = new File( importDir, applicationName );
+    private void importAdminUsers(final String fileName,
+                                  final int writeThreadCount,
+                                  final int auditThreadCount) throws Exception {
 
-        logger.info( "Loading application file: " + applicationFile.getAbsolutePath() );
-        JsonParser jp = getJsonParserForFile( applicationFile );
+        int count = 0;
+
+        File adminUsersFile = new File(importDir, fileName);
+
+        logger.info("----- Loading file: " + adminUsersFile.getAbsolutePath());
+        JsonParser jp = getJsonParserForFile(adminUsersFile);
+
+        int loopCounter = 0;
+
+        BlockingQueue<Map<String, Object>> workQueue = new LinkedBlockingQueue<Map<String, Object>>();
+        BlockingQueue<Map<String, Object>> auditQueue = new LinkedBlockingQueue<Map<String, Object>>();
+
+        startAdminWorkers(workQueue, auditQueue, writeThreadCount);
+        startAdminAuditors(auditQueue, auditThreadCount);
 
         JsonToken token = jp.nextToken();
-        validateStartArray( token );
+        validateStartArray(token);
 
-        // Move to next object (the application).
-        // The application object is the first object followed by all the
-        // objects in this application.
-        token = jp.nextValue();
+        while (jp.nextValue() != JsonToken.END_ARRAY) {
+            loopCounter += 1;
 
-        Application application = jp.readValueAs( Application.class );
+            @SuppressWarnings("unchecked")
+            Map<String, Object> entityProps = jp.readValueAs(HashMap.class);
+            if (loopCounter % 100 == 1)
+                logger.info("Publishing to queue... counter=" + loopCounter);
 
-        UUID appId = MANAGEMENT_APPLICATION_ID;
-
-        EntityManager em = emf.getEntityManager( appId );
-
-        // we now need to remove all roles, they'll be imported again below
-
-        for ( Entry<String, String> entry : em.getRoles().entrySet() ) {
-            em.deleteRole( entry.getKey() );
+            workQueue.add(entityProps);
         }
 
-        //load all the dictionaries
-        @SuppressWarnings( "unchecked" ) Map<String, Object> dictionaries =
-                ( Map<String, Object> ) application.getMetadata( "dictionaries" );
+        waitForQueueAndMeasure(workQueue, adminWriteThreads, "Admin Write");
+        waitForQueueAndMeasure(auditQueue, adminAuditThreads, "Admin Audit");
 
-        if ( dictionaries != null ) {
-            EntityManager rootEm = emf.getEntityManager( MANAGEMENT_APPLICATION_ID );
+        logger.info("----- End: Imported {} admin users from file {}",
+                count, adminUsersFile.getAbsolutePath());
 
-            Entity appEntity = rootEm.get( appId );
-
-
-            for ( Entry<String, Object> dictionary : dictionaries.entrySet() ) {
-                @SuppressWarnings( "unchecked" ) Map<Object, Object> value =
-                        ( Map<Object, Object> ) dictionary.getValue();
-
-                em.addMapToDictionary( appEntity, dictionary.getKey(), value );
-            }
-        }
-
-        while ( jp.nextValue() != JsonToken.END_ARRAY ) {
-            @SuppressWarnings( "unchecked" ) Map<String, Object> entityProps = jp.readValueAs( HashMap.class );
-            // Import/create the entity
-            UUID uuid = getId( entityProps );
-            String type = getType( entityProps );
-
-            try {
-                em.create( uuid, type, entityProps );
-            }
-            catch ( DuplicateUniquePropertyExistsException de ) {
-                logger.error( "Unable to create entity.  It appears to be a duplicate", de );
-                continue;
-            }
-
-            if ( em.get( uuid ) == null ) {
-                logger.error( "Holy hell, we wrote an entity and it's missing.  Entity Id was {} and type is {}", uuid,
-                        type );
-                System.exit( 1 );
-            }
-
-            logger.info( "Counts {}", JsonUtils.mapToFormattedJsonString( em.getApplicationCounters() ) );
-
-            echo( entityProps );
-        }
-
-        logger.info( "----- End of application:" + application.getName() );
         jp.close();
     }
 
+    private static void waitForQueueAndMeasure(final BlockingQueue workQueue,
+                                               final Map<Stoppable, Thread> threadMap,
+                                               final String identifier) throws InterruptedException {
+        double rateAverageSum = 0;
+        int iterationCounter = 0;
 
-    private String getType( Map<String, Object> entityProps ) {
-        return ( String ) entityProps.get( PROPERTY_TYPE );
+        while (!workQueue.isEmpty()) {
+            iterationCounter += 1;
+
+            int sizeLast = workQueue.size();
+            long lastTime = System.currentTimeMillis();
+            logger.info("Queue {} is not empty, remaining size={}, waiting...", identifier, sizeLast);
+            Thread.sleep(5000);
+
+            long timeNow = System.currentTimeMillis();
+            int sizeNow = workQueue.size();
+
+            int processed = sizeLast - sizeNow;
+
+            long timeDelta = timeNow - lastTime;
+
+            double rateLast = (double) processed / (timeDelta / 1000);
+            rateAverageSum += rateLast;
+
+            long timeRemaining = (long) ( sizeLast / (rateAverageSum / iterationCounter) );
+
+            logger.info(
+                    String.format("++PROGRESS (%s): sizeLast=%s nowSize=%s processed=%s rateLast=%s/s rateAvg=%s/s timeRemaining=%s(s)",
+                            identifier, sizeLast, sizeNow, processed, rateLast, (rateAverageSum / iterationCounter), timeRemaining)
+            );
+        }
+
+        for (Stoppable worker : threadMap.keySet()) {
+            worker.setDone(true);
+        }
+    }
+
+    private void startAdminAuditors(BlockingQueue<Map<String, Object>> auditQueue, int workerCount) {
+        for (int x = 0; x < workerCount; x++) {
+            AuditWorker worker = new AuditWorker(auditQueue);
+            Thread workerThread = new Thread(worker, "AdminAuditor-" + x);
+            workerThread.start();
+            adminAuditThreads.put(worker, workerThread);
+        }
+
     }
 
 
-    private UUID getId( Map<String, Object> entityProps ) {
-        return UUID.fromString( ( String ) entityProps.get( PROPERTY_UUID ) );
-    }
+    private void startAdminWorkers(BlockingQueue<Map<String, Object>> workQueue,
+                                   BlockingQueue<Map<String, Object>> auditQueue,
+                                   int workerCount) {
 
-
-    private void validateStartArray( JsonToken token ) {
-        if ( token != JsonToken.START_ARRAY ) {
-            throw new RuntimeException( "Token should be START ARRAY but it is:" + token.asString() );
+        for (int x = 0; x < workerCount; x++) {
+            ImportAdminWorker worker = new ImportAdminWorker(workQueue, auditQueue);
+            Thread workerThread = new Thread(worker, "AdminWriter-" + x);
+            workerThread.start();
+            adminWriteThreads.put(worker, workerThread);
         }
     }
 
 
-    private JsonParser getJsonParserForFile( File organizationFile ) throws Exception {
-        JsonParser jp = jsonFactory.createJsonParser( organizationFile );
-        jp.setCodec( new ObjectMapper() );
+    private String getType(Map<String, Object> entityProps) {
+        return (String) entityProps.get(PROPERTY_TYPE);
+    }
+
+
+    private UUID getId(Map<String, Object> entityProps) {
+        return UUID.fromString((String) entityProps.get(PROPERTY_UUID));
+    }
+
+
+    private void validateStartArray(JsonToken token) {
+        if (token != JsonToken.START_ARRAY) {
+            throw new RuntimeException("Token should be START ARRAY but it is:" + token.asString());
+        }
+    }
+
+
+    private JsonParser getJsonParserForFile(File organizationFile) throws Exception {
+        JsonParser jp = jsonFactory.createJsonParser(organizationFile);
+        jp.setCodec(new ObjectMapper());
         return jp;
     }
 
@@ -238,214 +293,431 @@ public class ImportAdmins extends ToolBase {
     /**
      * Import collections. Collections files are named: collections.<application_name>.Timestamp.json
      */
-    private void importCollections() throws Exception {
-        String[] collectionsFileNames = importDir.list( new PrefixFileFilter( "collections." ) );
-        logger.info( "Collections to read: " + collectionsFileNames.length );
+    private void importMetadata(int writeThreadCount) throws Exception {
 
-        for ( String collectionName : collectionsFileNames ) {
+        String[] fileNames = importDir.list(
+                new PrefixFileFilter(ExportAdmins.ADMIN_USER_METADATA_PREFIX + "."));
+        logger.info("Metadata files to read: " + fileNames.length);
+
+        for (String fileName : fileNames) {
             try {
-                importCollection( collectionName );
-            }
-            catch ( Exception e ) {
-                logger.warn( "Unable to import collection: " + collectionName, e );
+                importMetadata(fileName, writeThreadCount);
+            } catch (Exception e) {
+                logger.warn("Unable to import metadata file: " + fileName, e);
             }
         }
     }
 
+    private void startMetadataWorkers(BlockingQueue<ImportMetadataTask> workQueue, int writeThreadCount) {
 
-    private void importCollection( String collectionFileName ) throws Exception {
-        // Retrieve the namepsace for this collection. It's part of the name
-        String applicationName = getApplicationFromColllection( collectionFileName );
-
-        UUID appId = emf.lookupApplication( applicationName );
-
-        //no org in path, this is a pre public beta so we need to create the new path
-        if ( appId == null && !applicationName.contains( "/" ) ) {
-            String fileName = collectionFileName.replace( "collections", "application" );
-
-            File applicationFile = new File( importDir, fileName );
-
-            if ( !applicationFile.exists() ) {
-                logger.error( "Could not load application file {} to search for org information",
-                        applicationFile.getAbsolutePath() );
-                return;
-            }
-
-
-            logger.info( "Loading application file: " + applicationFile.getAbsolutePath() );
-
-            JsonParser jp = getJsonParserForFile( applicationFile );
-
-            JsonToken token = jp.nextToken();
-            validateStartArray( token );
-
-            // Move to next object (the application).
-            // The application object is the first object followed by all the
-            // objects in this application.
-            token = jp.nextValue();
-
-            Application application = jp.readValueAs( Application.class );
-
-            jp.close();
-
-            @SuppressWarnings( "unchecked" ) String orgName =
-                    ( ( Map<String, String> ) application.getMetadata( "organization" ) ).get( "value" );
-
-            OrganizationInfo info = managementService.getOrganizationByName( orgName );
-
-            if ( info == null ) {
-                logger.error( "Could not find org with name {}", orgName );
-                return;
-            }
-
-            applicationName = orgName + "/" + applicationName;
-
-            appId = emf.lookupApplication( applicationName );
+        for (int x = 0; x < writeThreadCount; x++) {
+            ImportMetadataWorker worker = new ImportMetadataWorker(workQueue);
+            Thread workerThread = new Thread(worker, "ImportMetadataTask-" + x);
+            workerThread.start();
+            metadataWorkerThreadMap.put(worker, workerThread);
         }
+    }
 
 
-        if ( appId == null ) {
-            logger.error( "Unable to find application with name {}.  Skipping collections", appId );
-            return;
-        }
+    @SuppressWarnings("unchecked")
+    private void importMetadata(String fileName, int writeThreads) throws Exception {
 
-        File collectionFile = new File( importDir, collectionFileName );
+        EntityManager em = emf.getEntityManager(MANAGEMENT_APPLICATION_ID);
 
-        logger.info( "Loading collections file: " + collectionFile.getAbsolutePath() );
+        File metadataFile = new File(importDir, fileName);
 
-        JsonParser jp = getJsonParserForFile( collectionFile );
+        logger.info("----- Loading metadata file: " + metadataFile.getAbsolutePath());
 
-        jp.nextToken(); // START_OBJECT this is the outter hashmap
+        JsonParser jp = getJsonParserForFile(metadataFile);
 
+        JsonToken jsonToken = null; // jp.nextToken();// START_OBJECT this is the outer hashmap
 
-        EntityManager em = emf.getEntityManager( appId );
+        int depth = 1;
 
-        while ( jp.nextToken() != JsonToken.END_OBJECT ) {
-            try {
-                importEntitysStuff( jp, em );
+        BlockingQueue<ImportMetadataTask> workQueue = new LinkedBlockingQueue<ImportMetadataTask>();
+        startMetadataWorkers(workQueue, writeThreads);
+
+        while (depth > 0) {
+
+            jsonToken = jp.nextToken();
+
+            if (jsonToken == null) {
+                logger.info("token is null, breaking");
+                break;
             }
-            catch ( NullPointerException nae ) {
-                //consume the read of the value so we can move on to process the next token.
-                jp.readValueAs( JsonNode.class );
+
+            if (jsonToken.equals(JsonToken.START_OBJECT)) {
+                depth++;
+            } else if (jsonToken.equals(JsonToken.END_OBJECT)) {
+                depth--;
+            }
+
+            if (jsonToken.equals(JsonToken.FIELD_NAME) && depth == 2) {
+
+                jp.nextToken();
+
+                String entityOwnerId = jp.getCurrentName();
+                EntityRef entityRef = em.getRef(UUID.fromString(entityOwnerId));
+
+                Map<String, Object> metadata = (Map<String, Object>) jp.readValueAs(Map.class);
+
+                workQueue.put(new ImportMetadataTask(entityRef, metadata));
+//                importEntityMetadata(em, entityRef, metadata);
             }
         }
 
-        logger.info( "----- End of collections -----" );
+        waitForQueueAndMeasure(workQueue, metadataWorkerThreadMap, "Metadata Load");
+
+        logger.info("----- End of metadata -----");
         jp.close();
     }
 
 
     /**
      * Imports the entity's connecting references (collections and connections)
-     *
-     * @param jp JsonPrser pointing to the beginning of the object.
      */
-    private void importEntitysStuff( JsonParser jp, EntityManager em ) throws Exception {
-        // The entity that owns the collections
-        String entityOwnerId = jp.getCurrentName();
-        EntityRef ownerEntityRef = em.getRef( UUID.fromString( entityOwnerId ) );
+    @SuppressWarnings("unchecked")
+    private void importEntityMetadata(
+            EntityManager em, EntityRef entityRef, Map<String, Object> metadata) throws Exception {
 
+        Map<String, Object> connectionsMap = (Map<String, Object>) metadata.get("connections");
 
-        jp.nextToken(); // start object
+        if (connectionsMap != null && !connectionsMap.isEmpty()) {
+            for (String type : connectionsMap.keySet()) {
+                try {
+                    UUID uuid = UUID.fromString((String) connectionsMap.get(type));
+                    EntityRef connectedEntityRef = em.getRef(uuid);
+                    em.createConnection(entityRef, type, connectedEntityRef);
 
-        //this is done after getting the next token so that we only capture the JsonNode object
-        // and not the entire file response.
-        if ( ownerEntityRef == null ) {
-            throw new NullPointerException( "Couldn't retrieve entity ref from: " + entityOwnerId );
-        }
+                    logger.debug("Creating connection from {} type {} target {}",
+                            new Object[]{entityRef, type, connectedEntityRef});
 
-        // Go inside the value after getting the owner entity id.
-        while ( jp.nextToken() != JsonToken.END_OBJECT ) {
-            String collectionName = jp.getCurrentName();
-
-            if ( collectionName.equals( "connections" ) ) {
-
-                jp.nextToken(); // START_OBJECT
-                while ( jp.nextToken() != JsonToken.END_OBJECT ) {
-                    String connectionType = jp.getCurrentName();
-
-                    jp.nextToken(); // START_ARRAY
-                    while ( jp.nextToken() != JsonToken.END_ARRAY ) {
-                        String entryId = jp.getText();
-                        EntityRef entryRef = em.getRef( UUID.fromString( entryId ) );
-                        // Store in DB
-                        em.createConnection( ownerEntityRef, connectionType, entryRef );
+                } catch (Exception e) {
+                    if (logger.isDebugEnabled()) {
+                        logger.error("Error importing connection of type "
+                                + type + " for user " + entityRef.getUuid(), e);
+                    } else {
+                        logger.error("Error importing connection of type "
+                                + type + " for user " + entityRef.getUuid());
                     }
                 }
             }
-            else if ( collectionName.equals( "dictionaries" ) ) {
+        }
 
-                jp.nextToken(); // START_OBJECT
-                while ( jp.nextToken() != JsonToken.END_OBJECT ) {
+        Map<String, Object> dictionariesMap = (Map<String, Object>) metadata.get("dictionaries");
 
+        if (dictionariesMap != null && !dictionariesMap.isEmpty()) {
+            for (String name : dictionariesMap.keySet()) {
+                try {
+                    Map<String, Object> dictionary = (Map<String, Object>) dictionariesMap.get(name);
+                    em.addMapToDictionary(entityRef, name, dictionary);
 
-                    String dictionaryName = jp.getCurrentName();
+                    logger.debug("Creating dictionary for {} name {} map {}",
+                            new Object[]{entityRef, name, dictionary});
 
-                    jp.nextToken();
-
-                    @SuppressWarnings( "unchecked" ) Map<String, Object> dictionary = jp.readValueAs( HashMap.class );
-
-                    em.addMapToDictionary( ownerEntityRef, dictionaryName, dictionary );
-                }
-            }
-
-            else {
-                // Regular collections
-
-                jp.nextToken(); // START_ARRAY
-                while ( jp.nextToken() != JsonToken.END_ARRAY ) {
-                    String entryId = jp.getText();
-                    EntityRef entryRef = em.getRef( UUID.fromString( entryId ) );
-
-                    // store it
-                    em.addToCollection( ownerEntityRef, collectionName, entryRef );
+                } catch (Exception e) {
+                    if (logger.isDebugEnabled()) {
+                        logger.error("Error importing dictionary name "
+                                + name + " for user " + entityRef.getUuid(), e);
+                    } else {
+                        logger.error("Error importing dictionary name "
+                                + name + " for user " + entityRef.getUuid());
+                    }
                 }
             }
         }
-    }
 
-    /**
-     * Extract a application name from a collectionsFileName in the way:
-     * collections.<a_name_space_name>.TIMESTAMP.json
-     *
-     * @param collectionFileName
-     *            a collection file name
-     * @return the application name for this collections file name
-     */
-    /**
-     * Extract a application name from a collectionsFileName in the way: collections.<a_name_space_name>.TIMESTAMP.json
-     *
-     * @param collectionFileName a collection file name
-     *
-     * @return the application name for this collections file name
-     */
-    private String getApplicationFromColllection( String collectionFileName ) {
-        int firstDot = collectionFileName.indexOf( "." );
-        int secondDot = collectionFileName.indexOf( ".", firstDot + 1 );
+        List<String> collectionsList = (List<String>) metadata.get("collections");
+        if (collectionsList != null && !collectionsList.isEmpty()) {
+            for (String name : collectionsList) {
+                try {
+                    UUID uuid = UUID.fromString((String) connectionsMap.get(name));
+                    EntityRef collectedEntityRef = em.getRef(uuid);
+                    em.addToCollection(entityRef, name, collectedEntityRef);
 
-        // The application will be in the subString between the dots.
+                    logger.debug("Add to collection of {} name {} entity {}",
+                            new Object[]{entityRef, name, collectedEntityRef});
 
-        String appName = collectionFileName.substring( firstDot + 1, secondDot );
+                } catch (Exception e) {
+                    if (logger.isDebugEnabled()) {
+                        logger.error("Error adding to collection "
+                                + name + " for user " + entityRef.getUuid(), e);
+                    } else {
+                        logger.error("Error adding to collection "
+                                + name + " for user " + entityRef.getUuid());
+                    }
+                }
+            }
+        }
 
-        return appName.replace( PATH_REPLACEMENT, "/" );
+
+        List<Object> organizationsList = (List<Object>) metadata.get("organizations");
+        if (organizationsList != null && !organizationsList.isEmpty()) {
+
+            User user = em.get(entityRef, User.class);
+
+            if (user == null) {
+                logger.error("User with uuid={} not found, not adding to organizations");
+
+            } else {
+
+                final UserInfo userInfo = managementService.getAdminUserByEmail(user.getEmail());
+
+                for (Object orgObject : organizationsList) {
+
+                    Map<String, Object> orgMap = (Map<String, Object>) orgObject;
+                    UUID orgUuid = UUID.fromString((String) orgMap.get("uuid"));
+                    String orgName = (String) orgMap.get("name");
+
+                    // create org only if it does not exist
+                    OrganizationInfo orgInfo = managementService.getOrganizationByUuid(orgUuid);
+                    if (orgInfo == null) {
+                        try {
+                            managementService.createOrganization(orgUuid, orgName, userInfo, false);
+                            orgInfo = managementService.getOrganizationByUuid(orgUuid);
+
+                            logger.debug("Created new org {} for user {}",
+                                    new Object[]{orgInfo.getName(), user.getEmail()});
+
+                        } catch (DuplicateUniquePropertyExistsException dpee) {
+                            logger.error("Org {} already exists", orgName);
+                        }
+                    } else {
+                        managementService.addAdminUserToOrganization(userInfo, orgInfo, false);
+                        logger.debug("Added user {} to org {}", new Object[]{user.getEmail(), orgName});
+                    }
+                }
+            }
+        }
     }
 
 
     /**
      * Open up the import directory based on <code>importDir</code>
      */
-    private void openImportDirectory( CommandLine line ) {
+    private void openImportDirectory(CommandLine line) {
 
-        boolean hasInputDir = line.hasOption( INPUT_DIR );
+        boolean hasInputDir = line.hasOption(INPUT_DIR);
 
-        if ( hasInputDir ) {
-            importDir = new File( line.getOptionValue( INPUT_DIR ) );
+        if (hasInputDir) {
+            importDir = new File(line.getOptionValue(INPUT_DIR));
+        } else {
+            importDir = new File(DEFAULT_INPUT_DIR);
         }
-        else {
-            importDir = new File( DEFAULT_INPUT_DIR );
+
+        logger.info("Importing from:" + importDir.getAbsolutePath());
+        logger.info("Status. Exists: " + importDir.exists() + " - Readable: " + importDir.canRead());
+    }
+
+
+    interface Stoppable {
+        void setDone(boolean done);
+    }
+
+    class AuditWorker implements Runnable, Stoppable {
+        private BlockingQueue<Map<String, Object>> workQueue;
+        private boolean done;
+
+        public AuditWorker(BlockingQueue<Map<String, Object>> workQueue) {
+            this.workQueue = workQueue;
         }
 
-        logger.info( "Importing from:" + importDir.getAbsolutePath() );
-        logger.info( "Status. Exists: " + importDir.exists() + " - Readable: " + importDir.canRead() );
+        @Override
+        public void setDone(boolean done) {
+            this.done = done;
+        }
+
+        @Override
+        public void run() {
+            int count = 0;
+
+            EntityManager em = emf.getEntityManager(MANAGEMENT_APPLICATION_ID);
+
+            long durationSum = 0;
+
+            while (!done) {
+                try {
+                    Map<String, Object> entityProps = this.workQueue.poll(30, TimeUnit.SECONDS);
+
+                    if (entityProps == null) {
+                        logger.warn("Reading from AUDIT queue was null!");
+                        Thread.sleep(1000);
+                        continue;
+                    }
+
+                    count++;
+                    long startTime = System.currentTimeMillis();
+
+                    UUID uuid = (UUID) entityProps.get(PROPERTY_UUID);
+                    String type = getType(entityProps);
+
+                    if (em.get(uuid) == null) {
+                        logger.error("Holy hell, we wrote an entity and it's missing.  " +
+                                "Entity Id was {} and type is {}", uuid, type);
+                        System.exit(1);
+                    }
+
+                    echo(entityProps);
+
+                    long stopTime = System.currentTimeMillis();
+
+                    long duration = stopTime - startTime;
+                    durationSum += duration;
+                    logger.debug(String.format("Audited [%s]th admin", count));
+                    logger.info(String.format("Average Audit Rate: %s(ms)", durationSum / count));
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            logger.warn("Done!");
+        }
+    }
+
+
+    class ImportMetadataTask {
+        public EntityRef entityRef;
+        public Map<String, Object> metadata;
+
+        public ImportMetadataTask(EntityRef entityRef, Map<String, Object> metadata) {
+            this.entityRef = entityRef;
+            this.metadata = metadata;
+        }
+    }
+
+    class ImportMetadataWorker implements Runnable, Stoppable {
+        private BlockingQueue<ImportMetadataTask> workQueue;
+        private boolean done = false;
+
+        public ImportMetadataWorker(final BlockingQueue<ImportMetadataTask> workQueue) {
+            this.workQueue = workQueue;
+
+        }
+
+        @Override
+        public void setDone(boolean done) {
+            this.done = done;
+        }
+
+        @Override
+        public void run() {
+            int count = 0;
+
+            EntityManager em = emf.getEntityManager(MANAGEMENT_APPLICATION_ID);
+
+            long durationSum = 0;
+
+            while (!done) {
+                try {
+                    ImportMetadataTask task = this.workQueue.poll(30, TimeUnit.SECONDS);
+
+                    if (task == null) {
+                        logger.warn("Reading from metadata queue was null!");
+                        Thread.sleep(1000);
+                        continue;
+                    }
+
+                    count++;
+                    long startTime = System.currentTimeMillis();
+                    importEntityMetadata(em, task.entityRef, task.metadata);
+                    long stopTime = System.currentTimeMillis();
+
+                    long duration = stopTime - startTime;
+                    durationSum += duration;
+                    logger.debug(String.format("Imported [%s]th metadata", count));
+                    logger.info(String.format("Average metadata Imported Rate: %s(ms)", durationSum / count));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.debug("EXCEPTION", e);
+                }
+            }
+
+            logger.warn("Done!");
+        }
+    }
+
+
+    class ImportAdminWorker implements Runnable, Stoppable {
+
+        private BlockingQueue<Map<String, Object>> workQueue;
+        private BlockingQueue<Map<String, Object>> auditQueue;
+        private boolean done = false;
+
+
+        public ImportAdminWorker(final BlockingQueue<Map<String, Object>> workQueue,
+                                 final BlockingQueue<Map<String, Object>> auditQueue) {
+            logger.info("New Worker!");
+            this.workQueue = workQueue;
+            this.auditQueue = auditQueue;
+        }
+
+        @Override
+        public void setDone(boolean done) {
+            this.done = done;
+        }
+
+        @Override
+        public void run() {
+            int count = 0;
+
+            EntityManager em = emf.getEntityManager(MANAGEMENT_APPLICATION_ID);
+
+            long durationSum = 0;
+
+            while (!done) {
+
+                try {
+
+                    Map<String, Object> entityProps = this.workQueue.poll(30, TimeUnit.SECONDS);
+
+                    if (entityProps == null) {
+                        logger.warn("Reading from admin import queue was null!");
+                        Thread.sleep(1000);
+                        continue;
+                    }
+
+                    // Import/create the entity
+                    UUID uuid = getId(entityProps);
+                    String type = getType(entityProps);
+
+
+                    try {
+                        long startTime = System.currentTimeMillis();
+                        em.create(uuid, type, entityProps);
+                        auditQueue.put(entityProps);
+                        long stopTime = System.currentTimeMillis();
+
+                        long duration = stopTime - startTime;
+                        durationSum += duration;
+
+                        count++;
+                        logger.debug(String.format("Imported [%s]th admin user %s  / %s", count, uuid, entityProps.get("username")));
+                        logger.info(String.format("Average Creation Rate: %s(ms)", durationSum / count));
+
+                        if (count % 100 == 0) {
+                            logger.info("Imported {} admin users", count);
+                        }
+                    } catch (DuplicateUniquePropertyExistsException de) {
+                        logger.warn("Unable to create entity. It appears to be a duplicate: " +
+                                        "id={}, type={}, name={}, username={}",
+                                new Object[]{uuid, type, entityProps.get("name"), entityProps.get("username")});
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Exception", de);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            logger.warn("Done!");
+        }
     }
 }
