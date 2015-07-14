@@ -1,7 +1,6 @@
 package org.apache.usergrid.java.client.entities;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.tinkerpop.blueprints.Vertex;
 import org.apache.usergrid.java.client.Client;
 import org.apache.usergrid.java.client.SingletonClient;
 import org.apache.usergrid.java.client.response.ApiResponse;
@@ -37,7 +36,7 @@ public class Connection {
 
     public void setConnectionID(String connID) {
         setStringProperty(properties,PROPERTY_ID, connID);
-        System.out.println("prop name for edge : " + getStringProperty(properties,PROPERTY_ID));
+        //System.out.println("prop name for edge : " + getStringProperty(properties,PROPERTY_ID));
     }
 
     public String getLabel() {
@@ -54,7 +53,7 @@ public class Connection {
     }
 
     public String getPropertyId() {
-        System.out.println("get id  :" + getStringProperty(properties,PROPERTY_ID));
+        //System.out.println("get id  :" + getStringProperty(properties,PROPERTY_ID));
         return getStringProperty(properties,PROPERTY_ID);
     }
 
