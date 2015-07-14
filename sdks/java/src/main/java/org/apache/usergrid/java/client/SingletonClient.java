@@ -71,7 +71,7 @@ public class SingletonClient {
 
   static RestTemplate restTemplate = new RestTemplate();
 
-  static Map<String, Client> instance_map = new HashMap<>(3);
+  static Map<String, Client> instance_map = new HashMap<String, Client>(3);
 
   /**
    * Default constructor for instantiating a client.
