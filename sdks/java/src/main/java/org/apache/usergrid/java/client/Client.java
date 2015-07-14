@@ -576,7 +576,7 @@ public class Client {
       if (isEmpty(entity.getType())) {
       throw new IllegalArgumentException("Missing entity type");
     }
-    ApiResponse response = apiRequest(HttpMethod.POST, null, entity,
+    ApiResponse response = apiRequest(HttpMethod.POST,null, entity,
         organizationId, applicationId, entity.getType());
     return response;
   }
