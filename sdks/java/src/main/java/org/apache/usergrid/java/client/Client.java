@@ -1092,6 +1092,12 @@ public class Client {
   }
 
 
+  public ApiResponse queryEdgesForVertex(String srcType,String srcID) {
+    return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
+            srcType, srcID);
+  }
+
+
   public ApiResponse queryConnection(String srcType,String srcID,String label) {
     return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
             srcType, srcID, label);
@@ -1101,6 +1107,11 @@ public class Client {
 
   public Entity getEntity(String s) {
     return null ;
+  }
+
+  public ApiResponse queryConnectingEdges(String srcType, String srcId, String connecting, String name) {
+    return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
+            srcType, srcId, connecting,name);
   }
 
   public interface Query {
