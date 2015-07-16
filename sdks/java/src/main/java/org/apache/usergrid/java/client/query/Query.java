@@ -105,8 +105,8 @@ public class Query {
 
   public static class QueryBuilder {
 
-    public final ArrayList<String> requirements = new ArrayList<>();
-    public final ArrayList<String> urlTerms = new ArrayList<>();
+    public final ArrayList<String> requirements = new ArrayList<String>();
+    public final ArrayList<String> urlTerms = new ArrayList<String>();
     public String collectionName;
     public int limit = Integer.MIN_VALUE;
     public List<SortTerm> orderClauses;
@@ -308,7 +308,7 @@ public class Query {
     private QueryBuilder addSortTerm(SortTerm term) {
 
       if (orderClauses == null) {
-        orderClauses = new ArrayList<>(3);
+        orderClauses = new ArrayList<SortTerm>(3);
       }
 
       orderClauses.add(term);
