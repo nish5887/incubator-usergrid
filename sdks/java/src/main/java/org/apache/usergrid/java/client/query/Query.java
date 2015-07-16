@@ -3,7 +3,6 @@ package org.apache.usergrid.java.client.query;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 /**
  * Created by ApigeeCorporation on 7/1/15.
@@ -17,14 +16,16 @@ public class Query {
   public static final String EQUALS = "=";
   public static final String AMPERSAND = "&";
   public static final String SPACE = " ";
+  public static final String ASTERISK = "*";
   private final QueryBuilder queryBuilder;
 
   public static void main(String[] args) {
     Query q = new QueryBuilder()
         .collection("pets")
         .limit(100)
+        .gt("age", 100)
         .gte("age", 100)
-        .filter("age", 100)
+        .containsWord("field", "value")
         .desc("cats")
         .asc("dogs")
         .build();
@@ -133,7 +134,28 @@ public class Query {
       return this;
     }
 
-    public QueryBuilder contains(final String term, final String value) {
+    public QueryBuilder startsWith(final String term, final String value) {
+      if (term != null && value != null) {
+        addRequirement(term + EQUALS + APOSTROPHE + value + ASTERISK + APOSTROPHE);
+      }
+      return this;
+    }
+
+    public QueryBuilder endsWith(final String term, final String value) {
+      if (term != null && value != null) {
+        addRequirement(term + EQUALS + APOSTROPHE + ASTERISK + value + APOSTROPHE);
+      }
+      return this;
+    }
+
+    public QueryBuilder containsString(final String term, final String value) {
+      if (term != null && value != null) {
+        addRequirement(term + CONTAINS + APOSTROPHE + value + APOSTROPHE);
+      }
+      return this;
+    }
+
+    public QueryBuilder containsWord(final String term, final String value) {
       if (term != null && value != null) {
         addRequirement(term + CONTAINS + APOSTROPHE + value + APOSTROPHE);
       }
