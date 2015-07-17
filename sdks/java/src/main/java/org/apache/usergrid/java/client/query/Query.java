@@ -69,9 +69,6 @@ public class Query {
         }
       }
 
-      if (this.queryBuilder.limit != Integer.MIN_VALUE) {
-        qlString += LIMIT + this.queryBuilder.limit;
-      }
 
 //      qlString = Query.encode(qlString);
       urlAppend = QL + EQUALS + qlString;
@@ -88,6 +85,9 @@ public class Query {
 
         hasContent = true;
       }
+    }
+
+    if (this.queryBuilder.limit != Integer.MIN_VALUE) {
     }
 
     return urlAppend;
