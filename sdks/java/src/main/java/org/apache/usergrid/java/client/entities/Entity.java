@@ -201,7 +201,7 @@ public class Entity {
   }
 
   public void delete() {
-      ApiResponse response = SingletonClient.getInstance().deleteEntity(this.getType().toString(),this.getUuid().toString());
+      ApiResponse response = SingletonClient.getInstance().deleteEntity(this.getType().toString(), this.getUuid().toString());
       System.out.println(response);
 
   }
@@ -224,5 +224,21 @@ public class Entity {
     this.setUuid(UUID.fromString(uuid));
 
     return response;
+  }
+
+  public void post() {
+
+  }
+
+  public void put() {
+
+  }
+
+  public void patch() {
+
+  }
+
+  public void connect(Entity pet, String owns) {
+
   }
 }

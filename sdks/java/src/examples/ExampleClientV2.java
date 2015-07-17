@@ -1,8 +1,9 @@
 import org.apache.usergrid.java.client.Client;
 import org.apache.usergrid.java.client.SingletonClient;
-import org.apache.usergrid.java.client.builder.QueryBuilder;
 import org.apache.usergrid.java.client.entities.Entity;
+import org.apache.usergrid.java.client.query.Query;
 import org.apache.usergrid.java.client.response.ApiResponse;
+//import org.apache.usergrid.java.client.query
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,7 +13,7 @@ import java.util.Properties;
 /**
  * Created by ApigeeCorporation on 6/26/15.
  */
-public class ConnectorsClientV2 {
+public class ExampleClientV2 {
 
   public static void main(String[] args) {
     Properties props = new Properties();
@@ -34,7 +35,12 @@ public class ConnectorsClientV2 {
     String client_secret = props.getProperty("usergrid.client_secret");
     String apiUrl = props.getProperty("usergrid.apiUrl");
 
+    // ignore above...
+
+    // below is the sample code
+
     SingletonClient.initialize(apiUrl, orgName, appName);
+//    Apigee.initializeBaaSClient(apiUrl, orgName, appName);
     Client client = SingletonClient.getInstance();
 
     ApiResponse response = client.authorizeAppClient(client_id, client_secret);
@@ -46,12 +52,16 @@ public class ConnectorsClientV2 {
     System.out.println(token);
 
     Entity pet = new Entity();
-
     pet.setType("pet");
     pet.setProperty("name", "max");
     pet.setProperty("age", 15);
     pet.setProperty("owner", (String) null);
-    pet.save();
+    pet.save(); // PUT if by name/uuid, otherwise POST
+
+    pet.patch(); // PATCH to update individual fields?
+    pet.post(); // POST to create, fails if exists?
+    pet.put(); // PUT to update, fails if doesn't exist?
+    pet.delete(); // DELETE
 
     Entity owner = new Entity();
     owner.setType("owner");
@@ -59,61 +69,23 @@ public class ConnectorsClientV2 {
     owner.setProperty("age", 15);
     owner.save();
 
+    // consider for v2 api
+    //    /_entities/{collection}:{name}
+    //    /_entities/{uuid}
+
+    owner.connect(pet, "owns");
     client.connectEntities(pet, owner, "ownedBy");
     client.connectEntities(owner, pet, "owns");
 
-//// GET /org/app/pets?ql=select * where
-//// name="max"
-//// and name contians "max"
-//// and age gte 10
-//// and age gte 10
-//// and age gte 10
-//
-//    QueryBuilder query = SingletonClient.QueryBuilder
-//        .type("pets")
-//        .filter("name", "max")
-//        .containsWord("name", "max") // true: "max is my cat" / false: "maxisnotmycat"
-//        .containsText("name", "max")// true: "max is my cat" / true: "maxisnotmycat"
-//        .startsWith("name", "max")
-//        .endsWith("name", "max")
-//        .endsWith("name", "max")
-//        .limit(10)
-//        .offset(10)
-//        .attributeExists("mustHave")
-//        .descending("age")
-//        .ascending("age")
-//        .gte("age", 10)
-//        .gt("age", 10)
-//        .lt("age", 10)
-//        .lte("age", 10)
-//        .build();
-//
-//    ApiResponse response2 = query.get();
-
-//    client.createEntityAsync(entity, new ApiResponseCallback(){
-//      @Override
-//      public void onException(Exception ex) {
-//        Log.i("NewBook", ex.getMessage());
-//      }
-//
-//      @Override
-//      public void onResponse(ApiResponse response) {
-//        CounterIncrement counterIncrement = new CounterIncrement();
-//        counterIncrement.setCounterName("book_add");
-//        client.createEventAsync(null, counterIncrement, new ApiResponseCallback(){
-//          @Override
-//          public void onException(Exception ex) {
-//            Log.i("book_add", ex.getMessage());
-//          }
-//
-//          @Override
-//          public void onResponse(ApiResponse counterResponse) {
-//            Log.i("book_add", "counter incremented");
-//          }
-//        });
-//        finish();
-//      }
-//    });
+    Query q = new Query.QueryBuilder()
+        .collection("pets")
+        .limit(100)
+        .gt("age", 100)
+        .gte("age", 100)
+        .containsWord("field", "value")
+        .desc("cats")
+        .asc("dogs")
+        .build();
 
   }
 }
