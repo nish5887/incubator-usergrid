@@ -58,7 +58,7 @@ public class ExampleClientV2 {
     pet.setProperty("owner", (String) null);
     pet.save(); // PUT if by name/uuid, otherwise POST
 
-    pet.patch(); // PATCH to update individual fields?
+//    pet.patch(); // PATCH to update individual fields?
     pet.post(); // POST to create, fails if exists?
     pet.put(); // PUT to update, fails if doesn't exist?
     pet.delete(); // DELETE
@@ -87,5 +87,6 @@ public class ExampleClientV2 {
         .asc("dogs")
         .build();
 
+    q.get();
   }
 }

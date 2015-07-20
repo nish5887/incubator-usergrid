@@ -1,5 +1,8 @@
 package org.apache.usergrid.java.client.query;
 
+import org.apache.usergrid.java.client.Client;
+import org.apache.usergrid.java.client.SingletonClient;
+
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +73,7 @@ public class Query {
       }
 
 
-//      qlString = Query.encode(qlString);
+//      qlString = QueryResult.encode(qlString);
       urlAppend = QL + EQUALS + qlString;
       hasContent = true;
     }
@@ -101,6 +104,10 @@ public class Query {
       escapedString = stringValue;
     }
     return escapedString;
+  }
+
+  public Client.QueryResult get() {
+    return SingletonClient.getInstance().query(this);
   }
 
   public static class QueryBuilder {
