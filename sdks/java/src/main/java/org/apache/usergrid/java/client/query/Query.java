@@ -1,9 +1,11 @@
 package org.apache.usergrid.java.client.query;
 
+import org.apache.usergrid.java.client.Client;
+import org.apache.usergrid.java.client.SingletonClient;
+
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeSet;
 
 /**
  * Created by ApigeeCorporation on 7/1/15.
@@ -17,14 +19,16 @@ public class Query {
   public static final String EQUALS = "=";
   public static final String AMPERSAND = "&";
   public static final String SPACE = " ";
+  public static final String ASTERISK = "*";
   private final QueryBuilder queryBuilder;
 
   public static void main(String[] args) {
     Query q = new QueryBuilder()
         .collection("pets")
         .limit(100)
+        .gt("age", 100)
         .gte("age", 100)
-        .filter("age", 100)
+        .containsWord("field", "value")
         .desc("cats")
         .asc("dogs")
         .build();
@@ -68,11 +72,8 @@ public class Query {
         }
       }
 
-      if (this.queryBuilder.limit != Integer.MIN_VALUE) {
-        qlString += LIMIT + this.queryBuilder.limit;
-      }
 
-//      qlString = Query.encode(qlString);
+//      qlString = QueryResult.encode(qlString);
       urlAppend = QL + EQUALS + qlString;
       hasContent = true;
     }
@@ -89,6 +90,9 @@ public class Query {
       }
     }
 
+    if (this.queryBuilder.limit != Integer.MIN_VALUE) {
+    }
+
     return urlAppend;
   }
 
@@ -102,10 +106,14 @@ public class Query {
     return escapedString;
   }
 
+  public Client.QueryResult get() {
+    return SingletonClient.getInstance().query(this);
+  }
+
   public static class QueryBuilder {
 
-    public final ArrayList<String> requirements = new ArrayList<>();
-    public final ArrayList<String> urlTerms = new ArrayList<>();
+    public final ArrayList<String> requirements = new ArrayList<String>();
+    public final ArrayList<String> urlTerms = new ArrayList<String>();
     public String collectionName;
     public int limit = Integer.MIN_VALUE;
     public List<SortTerm> orderClauses;
@@ -133,7 +141,28 @@ public class Query {
       return this;
     }
 
-    public QueryBuilder contains(final String term, final String value) {
+    public QueryBuilder startsWith(final String term, final String value) {
+      if (term != null && value != null) {
+        addRequirement(term + EQUALS + APOSTROPHE + value + ASTERISK + APOSTROPHE);
+      }
+      return this;
+    }
+
+    public QueryBuilder endsWith(final String term, final String value) {
+      if (term != null && value != null) {
+        addRequirement(term + EQUALS + APOSTROPHE + ASTERISK + value + APOSTROPHE);
+      }
+      return this;
+    }
+
+    public QueryBuilder containsString(final String term, final String value) {
+      if (term != null && value != null) {
+        addRequirement(term + CONTAINS + APOSTROPHE + value + APOSTROPHE);
+      }
+      return this;
+    }
+
+    public QueryBuilder containsWord(final String term, final String value) {
       if (term != null && value != null) {
         addRequirement(term + CONTAINS + APOSTROPHE + value + APOSTROPHE);
       }
@@ -286,7 +315,7 @@ public class Query {
     private QueryBuilder addSortTerm(SortTerm term) {
 
       if (orderClauses == null) {
-        orderClauses = new ArrayList<>(3);
+        orderClauses = new ArrayList<SortTerm>(3);
       }
 
       orderClauses.add(term);
