@@ -16,27 +16,19 @@
  */
 package org.apache.usergrid.java.client.entities;
 
-import static org.apache.usergrid.java.client.utils.JsonUtils.getUUIDProperty;
-import static org.apache.usergrid.java.client.utils.JsonUtils.setStringProperty;
-import static org.apache.usergrid.java.client.utils.JsonUtils.*;
-import static org.apache.usergrid.java.client.utils.MapUtils.newMapWithoutKeys;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.node.TextNode;
-import org.apache.usergrid.java.client.Client;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.usergrid.java.client.SingletonClient;
+import org.apache.usergrid.java.client.exception.ClientException;
 import org.apache.usergrid.java.client.response.ApiResponse;
 import org.apache.usergrid.java.client.utils.JsonUtils;
-import org.springframework.http.HttpMethod;
+
+import java.util.*;
+
+import static org.apache.usergrid.java.client.utils.JsonUtils.*;
+import static org.apache.usergrid.java.client.utils.MapUtils.newMapWithoutKeys;
 
 public class Entity {
 
@@ -193,36 +185,62 @@ public class Entity {
     return l;
   }
 
-  public void save() {
+  public void save() throws ClientException {
     ApiResponse response = SingletonClient.getInstance().updateEntity(this);
+    //todo error checking on response
     System.out.println(response);
     String uuid = response.getFirstEntity().getStringProperty("uuid");
     this.setUuid(UUID.fromString(uuid));
   }
 
-  public void delete() {
-      ApiResponse response = SingletonClient.getInstance().deleteEntity(this.getType().toString(),this.getUuid().toString());
-      System.out.println(response);
+  public void delete() throws ClientException {
+    // check for one of: name, uuid, error if not found
 
+    ApiResponse response = SingletonClient.getInstance().delete(this);
+    //todo error checking on response
+    System.out.println(response);
   }
 
   public String getStringProperty(String name) {
     return JsonUtils.getStringProperty(this.properties, name);
   }
 
-  public ApiResponse create() {
-    ApiResponse response = SingletonClient.getInstance().createEntity(this);
+  public void post() throws ClientException {
+    ApiResponse response = SingletonClient.getInstance().post(this);
+
+    //todo error checking on response
+
+    System.out.println(response);
     String uuid = response.getFirstEntity().getStringProperty("uuid");
     this.setUuid(UUID.fromString(uuid));
-
-    return response;
   }
 
-  public ApiResponse update() {
-    ApiResponse response = SingletonClient.getInstance().updateEntity(this);
-    String uuid = response.getFirstEntity().getStringProperty("uuid");
-    this.setUuid(UUID.fromString(uuid));
+  public void put() throws ClientException {
 
-    return response;
+    // check for one of: name, uuid, error if not found
+
+    ApiResponse response = SingletonClient.getInstance().put(this);
+
+    //todo error checking on response
+    System.out.println(response);
+    String uuid = response.getFirstEntity().getStringProperty("uuid");
+    // make sure there is an entity and a uuid
+    this.setUuid(UUID.fromString(uuid));
+  }
+
+  public Connection connect(Entity target, String connectionType) throws ClientException {
+
+    // check for one of: name, uuid, error if not found
+
+    ApiResponse response = SingletonClient.getInstance().connectEntities(
+        this.getType(),
+        this.getUuid() != null ? this.getUuid().toString() : this.getStringProperty("name"),
+        connectionType,
+        target.getUuid() != null ? target.getUuid().toString() : target.getStringProperty("name"));
+
+    //todo - check to make sure it worked
+
+    Connection connection = new Connection(this, connectionType, target);
+    return connection;
   }
 }

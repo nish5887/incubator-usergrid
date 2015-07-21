@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.apache.usergrid.java.client.entities.*;
+import org.apache.usergrid.java.client.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -532,7 +533,7 @@ public class Client {
    */
   public Device registerDevice(UUID deviceId, Map<String, Object> properties) {
     assertValidApplicationId();
-      if (properties == null) {
+    if (properties == null) {
       properties = new HashMap<String, Object>();
     }
     properties.put("refreshed", System.currentTimeMillis());
@@ -568,7 +569,7 @@ public class Client {
    */
   public ApiResponse createEntity(Entity entity) {
     assertValidApplicationId();
-      if (isEmpty(entity.getType())) {
+    if (isEmpty(entity.getType())) {
       throw new IllegalArgumentException("Missing entity type");
     }
     ApiResponse response = apiRequest(HttpMethod.POST, null, entity,
@@ -599,17 +600,17 @@ public class Client {
 
     assertValidApplicationId();
 
-      return apiRequest(HttpMethod.PUT, null, e.getProperties(),
-              organizationId, applicationId, e.getType(), entityIdentifier);
+    return apiRequest(HttpMethod.PUT, null, e.getProperties(),
+        organizationId, applicationId, e.getType(), entityIdentifier);
   }
 
-    public ApiResponse updateEntity(Map<String, Object> properties) {
-        assertValidApplicationId();
-        String uuid = properties.get("uuid").toString();
-        String entityIdentifier = uuid;
-        return apiRequest(HttpMethod.PUT, null, properties,
-                organizationId, applicationId, properties.get("type").toString(), entityIdentifier);
-    }
+  public ApiResponse updateEntity(Map<String, Object> properties) {
+    assertValidApplicationId();
+    String uuid = properties.get("uuid").toString();
+    String entityIdentifier = uuid;
+    return apiRequest(HttpMethod.PUT, null, properties,
+        organizationId, applicationId, properties.get("type").toString(), entityIdentifier);
+  }
 
   /**
    * Create a new entity on the server from a set of properties. Properties
@@ -682,8 +683,8 @@ public class Client {
    * @param userId
    * @return
    */
-  public Query queryActivityFeedForUser(String userId) {
-    Query q = queryEntitiesRequest(HttpMethod.GET, null, null,
+  public QueryResult queryActivityFeedForUser(String userId) {
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, null, null,
         organizationId, applicationId, "users", userId, "feed");
     return q;
   }
@@ -731,7 +732,7 @@ public class Client {
    */
   public ApiResponse postGroupActivity(String groupId, Activity activity) {
     return apiRequest(HttpMethod.POST, null, activity, organizationId, applicationId, "groups",
-            groupId, "activities");
+        groupId, "activities");
   }
 
   /**
@@ -795,10 +796,10 @@ public class Client {
    * @param userId
    * @return
    */
-  public Query queryActivity() {
-    Query q = queryEntitiesRequest(HttpMethod.GET, null, null,
-            organizationId, applicationId, "activities");
-      return q;
+  public QueryResult queryActivity() {
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, null, null,
+        organizationId, applicationId, "activities");
+    return q;
   }
 
 
@@ -808,14 +809,13 @@ public class Client {
    * @param userId
    * @return
    */
-  public Query queryActivityFeedForGroup(String groupId) {
-    Query q = queryEntitiesRequest(HttpMethod.GET, null, null,
-        organizationId, applicationId, "groups", groupId, "feed");
+  public QueryResult queryActivityFeedForGroup(String groupId) {
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, null, null, organizationId, applicationId, "groups", groupId, "feed");
     return q;
   }
 
   /**
-   * Perform a query request and return a query object. The Query object
+   * Perform a query request and return a query object. The QueryResult object
    * provides a simple way of dealing with result sets that need to be
    * iterated or paged through.
    *
@@ -825,10 +825,10 @@ public class Client {
    * @param segments
    * @return
    */
-  public Query queryEntitiesRequest(HttpMethod method,
-                                    Map<String, Object> params, Object data, String... segments) {
+  public QueryResult queryEntitiesRequest(HttpMethod method,
+                                          Map<String, Object> params, Object data, String... segments) {
     ApiResponse response = apiRequest(method, params, data, segments);
-      return new EntityQuery(response, method, params, data, segments);
+    return new EntityQueryResult(response, method, params, data, segments);
   }
 
   /**
@@ -836,10 +836,10 @@ public class Client {
    *
    * @return
    */
-  public Query queryUsers() {
-    Query q = queryEntitiesRequest(HttpMethod.GET, null, null,
-            organizationId, applicationId, "users");
-      return q;
+  public QueryResult queryUsers() {
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, null, null,
+        organizationId, applicationId, "users");
+    return q;
   }
 
   /**
@@ -849,10 +849,10 @@ public class Client {
    * @param ql
    * @return
    */
-  public Query queryUsers(String ql) {
+  public QueryResult queryUsers(String ql) {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("ql", ql);
-    Query q = queryEntitiesRequest(HttpMethod.GET, params, null, organizationId,
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, params, null, organizationId,
         applicationId, "users");
     return q;
   }
@@ -867,25 +867,25 @@ public class Client {
    * @param ql
    * @return
    */
-  public Query queryUsersWithinLocation(float distance, float lattitude,
-                                        float longitude, String ql) {
+  public QueryResult queryUsersWithinLocation(float distance, float lattitude,
+                                              float longitude, String ql) {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("ql",
         this.makeLocationQL(distance, lattitude, longitude, ql));
-    Query q = queryEntitiesRequest(HttpMethod.GET, params, null, organizationId,
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, params, null, organizationId,
         applicationId, "users");
     return q;
   }
 
-    public ApiResponse queryEntity(String type,String id) {
-        return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
-                type,id);
-    }
+  public ApiResponse queryEntity(String type, String id) {
+    return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
+        type, id);
+  }
 
-    public ApiResponse deleteEntity(String type,String id) {
-        return apiRequest(HttpMethod.DELETE, null, null, organizationId, applicationId,
-                type,id);
-    }
+  public ApiResponse deleteEntity(String type, String id) {
+    return apiRequest(HttpMethod.DELETE, null, null, organizationId, applicationId,
+        type, id);
+  }
 
   /**
    * Queries the users for the specified group.
@@ -893,8 +893,8 @@ public class Client {
    * @param groupId
    * @return
    */
-  public Query queryUsersForGroup(String groupId) {
-    Query q = queryEntitiesRequest(HttpMethod.GET, null, null, organizationId,
+  public QueryResult queryUsersForGroup(String groupId) {
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, null, null, organizationId,
         applicationId, "groups", groupId, "users");
     return q;
   }
@@ -966,10 +966,10 @@ public class Client {
    * @param ql
    * @return
    */
-  public Query queryGroups(String ql) {
+  public QueryResult queryGroups(String ql) {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("ql", ql);
-    Query q = queryEntitiesRequest(HttpMethod.GET, params, null, organizationId,
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, params, null, organizationId,
         applicationId, "groups");
     return q;
   }
@@ -1013,7 +1013,6 @@ public class Client {
 
 
   /**
-   *
    * @param sourceVertex
    * @param TargetVertex
    * @param connetionName
@@ -1022,13 +1021,13 @@ public class Client {
   public ApiResponse disconnectEntities(Entity sourceVertex, Entity TargetVertex, String connetionName) {
 
     return apiRequest(HttpMethod.DELETE, null, null, organizationId, applicationId,
-            sourceVertex.getType(), sourceVertex.getUuid().toString(), connetionName,
-            TargetVertex.getUuid().toString());
+        sourceVertex.getType(), sourceVertex.getUuid().toString(), connetionName,
+        TargetVertex.getUuid().toString());
   }
 
 
   /**
-   * Query the connected entities.
+   * QueryResult the connected entities.
    *
    * @param connectingEntityType
    * @param connectingEntityId
@@ -1036,11 +1035,11 @@ public class Client {
    * @param ql
    * @return
    */
-  public Query queryEntityConnections(String connectingEntityType,
-                                      String connectingEntityId, String connectionType, String ql) {
+  public QueryResult queryEntityConnections(String connectingEntityType,
+                                            String connectingEntityId, String connectionType, String ql) {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("ql", ql);
-    Query q = queryEntitiesRequest(HttpMethod.GET, params, null,
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, params, null,
         organizationId, applicationId, connectingEntityType, connectingEntityId,
         connectionType);
     return q;
@@ -1049,13 +1048,13 @@ public class Client {
   protected String makeLocationQL(float distance, double lattitude,
                                   double longitude, String ql) {
     String within = String.format("within %d of %d , %d", distance,
-            lattitude, longitude);
-      ql = ql == null ? within : within + " and " + ql;
+        lattitude, longitude);
+    ql = ql == null ? within : within + " and " + ql;
     return ql;
   }
 
   /**
-   * Query the connected entities within distance of a specific point.
+   * QueryResult the connected entities within distance of a specific point.
    *
    * @param connectingEntityType
    * @param connectingEntityId
@@ -1065,13 +1064,13 @@ public class Client {
    * @param longitude
    * @return
    */
-  public Query queryEntityConnectionsWithinLocation(
+  public QueryResult queryEntityConnectionsWithinLocation(
       String connectingEntityType, String connectingEntityId,
       String connectionType, float distance, float lattitude,
       float longitude, String ql) {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("ql", makeLocationQL(distance, lattitude, longitude, ql));
-    Query q = queryEntitiesRequest(HttpMethod.GET, params, null, organizationId,
+    QueryResult q = queryEntitiesRequest(HttpMethod.GET, params, null, organizationId,
         applicationId, connectingEntityType, connectingEntityId,
         connectionType);
     return q;
@@ -1087,10 +1086,11 @@ public class Client {
   }
 
 
-  public ApiResponse queryEdgesForVertex(String srcType,String srcID) {
+  public ApiResponse queryEdgesForVertex(String srcType, String srcID) {
     return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId,
-            srcType, srcID);
+        srcType, srcID);
   }
+
 
 
   public ApiResponse queryConnection(String... segments) {
@@ -1101,37 +1101,58 @@ public class Client {
       paramPath[2+i] = segments[i];
     }
     return apiRequest(HttpMethod.GET,null,null,paramPath);
+
   }
 
   private String convertStringArrayToPath(String[] segments) {
     return null;
   }
 
-
   public Entity getEntity(String s) {
-    return null ;
+    return null;
   }
 
-  public interface Query {
+
+
+  public QueryResult query(Query query) {
+
+    String uri = query.toString();
+
+    return null;
+  }
+
+  public ApiResponse put(Entity entity) {
+    return updateEntity(entity);
+  }
+
+  public ApiResponse post(Entity entity) {
+    return this.createEntity(entity);
+  }
+
+  public ApiResponse delete(Entity entity) {
+    return this.deleteEntity(entity.getType(), entity.getUuid().toString());
+  }
+
+  public interface QueryResult {
 
     public ApiResponse getResponse();
     public boolean more();
-    public Query next();
+    public QueryResult next();
 
   }
 
   /**
-   * Query object
+   * QueryResult object
    */
-  private class EntityQuery implements Query {
+  private class EntityQueryResult implements QueryResult {
     final HttpMethod method;
     final Map<String, Object> params;
     final Object data;
     final String[] segments;
     final ApiResponse response;
 
-    private EntityQuery(ApiResponse response, HttpMethod method,
-                        Map<String, Object> params, Object data, String[] segments) {
+    private EntityQueryResult(ApiResponse response, HttpMethod method,
+                              Map<String, Object> params, Object data, String[] segments) {
       this.response = response;
       this.method = method;
       this.params = params;
@@ -1139,7 +1160,7 @@ public class Client {
       this.segments = segments;
     }
 
-    private EntityQuery(ApiResponse response, EntityQuery q) {
+    private EntityQueryResult(ApiResponse response, EntityQueryResult q) {
       this.response = response;
       method = q.method;
       params = q.params;
@@ -1170,7 +1191,7 @@ public class Client {
      *
      * @return query that contains results and where to get more from.
      */
-    public Query next() {
+    public QueryResult next() {
       if (more()) {
         Map<String, Object> nextParams = null;
         if (params != null) {
@@ -1181,7 +1202,7 @@ public class Client {
         nextParams.put("cursor", response.getCursor());
         ApiResponse nextResponse = apiRequest(method, nextParams, data,
             segments);
-        return new EntityQuery(nextResponse, this);
+        return new EntityQueryResult(nextResponse, this);
       }
       return null;
     }
@@ -1285,15 +1306,15 @@ public class Client {
         normalizeQueuePath(subscriberQueue));
   }
 
-  private class QueueQuery implements Query {
+  private class QueueQueryResult implements QueryResult {
     final HttpMethod method;
     final Map<String, Object> params;
     final Object data;
     final String queuePath;
     final ApiResponse response;
 
-    private QueueQuery(ApiResponse response, HttpMethod method,
-                       Map<String, Object> params, Object data, String queuePath) {
+    private QueueQueryResult(ApiResponse response, HttpMethod method,
+                             Map<String, Object> params, Object data, String queuePath) {
       this.response = response;
       this.method = method;
       this.params = params;
@@ -1301,7 +1322,7 @@ public class Client {
       this.queuePath = normalizeQueuePath(queuePath);
     }
 
-    private QueueQuery(ApiResponse response, QueueQuery q) {
+    private QueueQueryResult(ApiResponse response, QueueQueryResult q) {
       this.response = response;
       method = q.method;
       params = q.params;
@@ -1332,7 +1353,7 @@ public class Client {
      *
      * @return query that contains results and where to get more from.
      */
-    public Query next() {
+    public QueryResult next() {
       if (more()) {
         Map<String, Object> nextParams = null;
         if (params != null) {
@@ -1343,17 +1364,17 @@ public class Client {
         nextParams.put("start", response.getCursor());
         ApiResponse nextResponse = apiRequest(method, nextParams, data,
             queuePath);
-        return new QueueQuery(nextResponse, this);
+        return new QueueQueryResult(nextResponse, this);
       }
       return null;
     }
 
   }
 
-  public Query queryQueuesRequest(HttpMethod method,
-                                  Map<String, Object> params, Object data, String queuePath) {
+  public QueryResult queryQueuesRequest(HttpMethod method,
+                                        Map<String, Object> params, Object data, String queuePath) {
     ApiResponse response = apiRequest(method, params, data, queuePath);
-    return new QueueQuery(response, method, params, data, queuePath);
+    return new QueueQueryResult(response, method, params, data, queuePath);
   }
 
 }

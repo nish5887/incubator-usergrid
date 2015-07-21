@@ -26,50 +26,58 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.usergrid.java.client.Client;
 
 
-
 /**
  * Created by ayeshadastagiri on 7/2/15.
  */
 public class Connection {
 
-    protected Map<String, JsonNode> properties = new HashMap<String, JsonNode>();
-    public final static String LABEL = "label";
+  public final static String LABEL = "label";
+  public final static String PROPERTY_ID = "connectionId";
 
-    public final static String PROPERTY_ID = "connectionId";
+  protected Map<String, JsonNode> properties = new HashMap<String, JsonNode>();
 
-    Client client ;
+  Entity source;
+  Entity target;
 
-    protected Connection(){
+  Client client;
 
-    }
+  public Connection(Entity source, String label, Entity target) {
+    this.source = source;
+    this.target = target;
+    this.setLabel(label);
+  }
 
-    public void setLabel(String label) {
-        setStringProperty(properties,LABEL,label);
-    }
+  protected Connection() {
 
-    public void setConnectionID(String connID) {
-        setStringProperty(properties,PROPERTY_ID, connID);
-    }
+  }
 
-    public String getLabel() {
-        return getStringProperty(properties,LABEL);
-    }
+  public void setLabel(String label) {
+    setStringProperty(properties, LABEL, label);
+  }
+
+  public void setConnectionID(String connID) {
+    setStringProperty(properties, PROPERTY_ID, connID);
+  }
+
+  public String getLabel() {
+    return getStringProperty(properties, LABEL);
+  }
 
 
-    public void setClientConnection(Client client) {
-        this.client = client;
-    }
+  public void setClientConnection(Client client) {
+    this.client = client;
+  }
 
-    public Client getClientConnection(){
-        return this.client;
-    }
+  public Client getClientConnection() {
+    return this.client;
+  }
 
-    public String getPropertyId() {
-        return getStringProperty(properties,PROPERTY_ID);
-    }
+  public String getPropertyId() {
+    return getStringProperty(properties, PROPERTY_ID);
+  }
 
-    public long getTimestamp(){
-        return 0;
-    }
+  public long getTimestamp() {
+    return 0;
+  }
 
 }

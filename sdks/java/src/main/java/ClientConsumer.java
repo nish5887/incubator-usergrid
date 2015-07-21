@@ -24,6 +24,9 @@ public class ClientConsumer {
     //easily delete entity by UUID
 //    Entity.UUID("<uuid>").delete();
 //    Entity.UUID("<uuid>").get();
+//    Entity.Type("pets"').UUID("<uuid>").get();
+    // Entity("Pets", "<uuid>").delete()
+//    Entity.Type("pets").Name("<name>").get();
 
     // this incurs object creation and GC cost
     new Entity("<uuid>").delete();

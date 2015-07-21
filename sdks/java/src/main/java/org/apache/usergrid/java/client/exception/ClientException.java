@@ -18,24 +18,23 @@ package org.apache.usergrid.java.client.exception;
 
 /**
  * Simple wrapper for client exceptions
- * @author tnine
  *
+ * @author tnine
  */
-public class ClientException extends RuntimeException{
+public class ClientException extends RuntimeException {
 
-    /**
-     *
-     */
-    private static final long serialVersionUID = 1L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * @param message
-     * @param cause
-     */
-    public ClientException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
+  /**
+   * @param message
+   * @param cause
+   */
+  public ClientException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
 
 }

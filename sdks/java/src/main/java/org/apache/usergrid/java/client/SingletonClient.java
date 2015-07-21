@@ -760,7 +760,7 @@ public class SingletonClient {
   }
 
   /**
-   * Perform a query request and return a query object. The Query object
+   * Perform a query request and return a query object. The QueryResult object
    * provides a simple way of dealing with result sets that need to be
    * iterated or paged through.
    *
@@ -947,7 +947,7 @@ public class SingletonClient {
   }
 
   /**
-   * Query the connected entities.
+   * QueryResult the connected entities.
    *
    * @param connectingEntityType
    * @param connectingEntityId
@@ -974,7 +974,7 @@ public class SingletonClient {
   }
 
   /**
-   * Query the connected entities within distance of a specific point.
+   * QueryResult the connected entities within distance of a specific point.
    *
    * @param connectingEntityType
    * @param connectingEntityId
@@ -1041,7 +1041,7 @@ public class SingletonClient {
   }
 
   /**
-   * Query object
+   * QueryResult object
    */
   private class EntityQuery implements Query {
     final HttpMethod method;
