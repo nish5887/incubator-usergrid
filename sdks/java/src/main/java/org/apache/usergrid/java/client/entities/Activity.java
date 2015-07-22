@@ -17,8 +17,6 @@
 package org.apache.usergrid.java.client.entities;
 
 
-import static org.apache.usergrid.java.client.utils.JsonUtils.getStringProperty;
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -41,7 +39,7 @@ import org.apache.usergrid.java.client.utils.JsonUtils;
  *
  * @see http://activitystrea.ms/specs/json/1.0/
  */
-public class Activity extends Entity {
+public class Activity extends UsergridEntity {
 
     public static final String ENTITY_TYPE = "activity";
 
@@ -136,7 +134,7 @@ public class Activity extends Entity {
     }
 
     public static Activity newActivity(String verb, String title,
-            String content, String category, Entity user, Entity object,
+            String content, String category, UsergridEntity user, UsergridEntity object,
             String objectType, String objectName, String objectContent){
 
         Activity activity = new Activity();

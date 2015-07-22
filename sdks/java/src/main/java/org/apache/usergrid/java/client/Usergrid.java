@@ -38,9 +38,9 @@ import static org.springframework.util.StringUtils.tokenizeToStringArray;
  * The Client class for accessing the Usergrid API. Start by instantiating this
  * class though the appropriate constructor.
  */
-public class SingletonClient {
+public class Usergrid {
 
-  private static final Logger log = LoggerFactory.getLogger(SingletonClient.class);
+  private static final Logger log = LoggerFactory.getLogger(Usergrid.class);
 
   public static boolean FORCE_PUBLIC_API = false;
 
@@ -76,7 +76,7 @@ public class SingletonClient {
   /**
    * Default constructor for instantiating a client.
    */
-  private SingletonClient() {
+  private Usergrid() {
   }
 
 
@@ -98,7 +98,7 @@ public class SingletonClient {
    * @param apiUrl the Usergrid API url (default: http://api.usergrid.com)
    * @return Client object for method call chaining
    */
-  public SingletonClient withApiUrl(String apiUrl) {
+  public Usergrid withApiUrl(String apiUrl) {
     this.apiUrl = apiUrl;
     return this;
   }
@@ -109,7 +109,7 @@ public class SingletonClient {
    * @param organizationId
    * @return
    */
-  public SingletonClient withOrganizationId(String organizationId) {
+  public Usergrid withOrganizationId(String organizationId) {
     this.organizationId = organizationId;
     return this;
   }
@@ -148,7 +148,7 @@ public class SingletonClient {
    * @param applicationId the application id or name
    * @return Client object for method call chaining
    */
-  public SingletonClient withApplicationId(String applicationId) {
+  public Usergrid withApplicationId(String applicationId) {
     this.applicationId = applicationId;
     return this;
   }
@@ -174,7 +174,7 @@ public class SingletonClient {
    *                 Not safe for most mobile use.
    * @return Client object for method call chaining
    */
-  public SingletonClient withClientId(String clientId) {
+  public Usergrid withClientId(String clientId) {
     this.clientId = clientId;
     return this;
   }
@@ -200,7 +200,7 @@ public class SingletonClient {
    *                     Not safe for most mobile use.
    * @return Client object for method call chaining
    */
-  public SingletonClient withClientSecret(String clientSecret) {
+  public Usergrid withClientSecret(String clientSecret) {
     this.clientSecret = clientSecret;
     return this;
   }
@@ -541,18 +541,18 @@ public class SingletonClient {
   }
 
   /**
-   * Create a new entity on the server.
+   * Create a new usergridEntity on the server.
    *
-   * @param entity
-   * @return an ApiResponse with the new entity in it.
+   * @param usergridEntity
+   * @return an ApiResponse with the new usergridEntity in it.
    */
-  public ApiResponse createEntity(Entity entity) {
+  public ApiResponse createEntity(UsergridEntity usergridEntity) {
     assertValidApplicationId();
-    if (isEmpty(entity.getType())) {
-      throw new IllegalArgumentException("Missing entity type");
+    if (isEmpty(usergridEntity.getType())) {
+      throw new IllegalArgumentException("Missing usergridEntity type");
     }
-    ApiResponse response = apiRequest(HttpMethod.POST, null, entity,
-        organizationId, applicationId, entity.getType());
+    ApiResponse response = apiRequest(HttpMethod.POST, null, usergridEntity,
+        organizationId, applicationId, usergridEntity.getType());
     return response;
   }
 
@@ -660,7 +660,7 @@ public class SingletonClient {
    * @return
    */
   public ApiResponse postUserActivity(String verb, String title,
-                                      String content, String category, User user, Entity object,
+                                      String content, String category, User user, UsergridEntity object,
                                       String objectType, String objectName, String objectContent) {
     Activity activity = Activity.newActivity(verb, title, content,
         category, user, object, objectType, objectName, objectContent);
@@ -695,7 +695,7 @@ public class SingletonClient {
    * @return
    */
   public ApiResponse postGroupActivity(String groupId, String verb, String title,
-                                       String content, String category, User user, Entity object,
+                                       String content, String category, User user, UsergridEntity object,
                                        String objectType, String objectName, String objectContent) {
     Activity activity = Activity.newActivity(verb, title, content,
         category, user, object, objectType, objectName, objectContent);
@@ -727,7 +727,7 @@ public class SingletonClient {
    * @return
    */
   public ApiResponse postActivity(String verb, String title,
-                                  String content, String category, User user, Entity object,
+                                  String content, String category, User user, UsergridEntity object,
                                   String objectType, String objectName, String objectContent) {
     Activity activity = Activity.newActivity(verb, title, content,
         category, user, object, objectType, objectName, objectContent);
@@ -996,7 +996,7 @@ public class SingletonClient {
     return q;
   }
 
-  public static void save(final Entity entity) {
+  public static void save(final UsergridEntity usergridEntity) {
 
   }
 

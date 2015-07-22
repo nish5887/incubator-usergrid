@@ -1,14 +1,13 @@
 import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.usergrid.java.client.Client;
-import org.apache.usergrid.java.client.SingletonClient;
-import org.apache.usergrid.java.client.entities.Entity;
+import org.apache.usergrid.java.client.Usergrid;
+import org.apache.usergrid.java.client.entities.UsergridEntity;
 import org.apache.usergrid.java.client.response.ApiResponse;
 
 import javax.script.ScriptException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -49,8 +48,8 @@ public class ConnectionEx {
         String client_secret = props.getProperty("usergrid.client_secret");
         String apiUrl = props.getProperty("usergrid.apiUrl");
 
-        SingletonClient.initialize(apiUrl, orgName, appName);
-        Client client = SingletonClient.getInstance();
+        Usergrid.initialize(apiUrl, orgName, appName);
+        Client client = Usergrid.getInstance();
 
         ApiResponse response = client.authorizeAppClient(client_id, client_secret);
 
@@ -60,10 +59,10 @@ public class ConnectionEx {
 
         System.out.println(token);
 
-        Entity person1 = new Entity();
-        Entity person2 = new Entity();
-        Entity person3 = new Entity();
-        Entity person4 = new Entity();
+        UsergridEntity person1 = new UsergridEntity();
+        UsergridEntity person2 = new UsergridEntity();
+        UsergridEntity person3 = new UsergridEntity();
+        UsergridEntity person4 = new UsergridEntity();
 
         person1.setType("people");
         person1.setProperty("name", "A");
@@ -87,10 +86,10 @@ public class ConnectionEx {
 
 
 
-        Entity rest1 = new Entity();
-        Entity rest2 = new Entity();
-        Entity rest3 = new Entity();
-        Entity rest4 = new Entity();
+        UsergridEntity rest1 = new UsergridEntity();
+        UsergridEntity rest2 = new UsergridEntity();
+        UsergridEntity rest3 = new UsergridEntity();
+        UsergridEntity rest4 = new UsergridEntity();
 
 
 
@@ -134,10 +133,10 @@ public class ConnectionEx {
         System.out.println(c1.getLastEntity().getStringProperty("name"));
 
         System.out.println(c1.getTimestamp()); // returns timestamp
-        Entity entity1 = c3.getEntities().get(0); // returns timestamp
+        UsergridEntity usergridEntity1 = c3.getEntities().get(0); // returns timestamp
 
-        System.out.println(entity1.getStringProperty("name"));
-        System.out.println(entity1.getProperties().get("metadata").get("connecting").get("follows"));
+        System.out.println(usergridEntity1.getStringProperty("name"));
+        System.out.println(usergridEntity1.getProperties().get("metadata").get("connecting").get("follows"));
 
         System.out.println(c3.getTimestamp());
 

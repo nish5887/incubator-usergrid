@@ -567,18 +567,18 @@ public class Client {
   }
 
   /**
-   * Create a new entity on the server.
+   * Create a new usergridEntity on the server.
    *
-   * @param entity
-   * @return an ApiResponse with the new entity in it.
+   * @param usergridEntity
+   * @return an ApiResponse with the new usergridEntity in it.
    */
-  public ApiResponse createEntity(Entity entity) {
+  public ApiResponse createEntity(UsergridEntity usergridEntity) {
     assertValidApplicationId();
-    if (isEmpty(entity.getType())) {
-      throw new IllegalArgumentException("Missing entity type");
+    if (isEmpty(usergridEntity.getType())) {
+      throw new IllegalArgumentException("Missing usergridEntity type");
     }
-    ApiResponse response = apiRequest(HttpMethod.POST, null, entity,
-        organizationId, applicationId, entity.getType());
+    ApiResponse response = apiRequest(HttpMethod.POST, null, usergridEntity,
+        organizationId, applicationId, usergridEntity.getType());
     return response;
   }
 
@@ -589,10 +589,10 @@ public class Client {
    * @param e
    * @return an ApiResponse with the new e in it.
    */
-  public ApiResponse updateEntity(Entity e) {
+  public ApiResponse updateEntity(UsergridEntity e) {
 
     if (isEmpty(e.getType())) {
-      throw new IllegalArgumentException("Entity is required to have a 'type' property and does not");
+      throw new IllegalArgumentException("UsergridEntity is required to have a 'type' property and does not");
     }
 
     String name = e.getStringProperty("name");
@@ -721,7 +721,7 @@ public class Client {
    * @return
    */
   public ApiResponse postUserActivity(String verb, String title,
-                                      String content, String category, User user, Entity object,
+                                      String content, String category, User user, UsergridEntity object,
                                       String objectType, String objectName, String objectContent) {
     Activity activity = Activity.newActivity(verb, title, content,
         category, user, object, objectType, objectName, objectContent);
@@ -756,7 +756,7 @@ public class Client {
    * @return
    */
   public ApiResponse postGroupActivity(String groupId, String verb, String title,
-                                       String content, String category, User user, Entity object,
+                                       String content, String category, User user, UsergridEntity object,
                                        String objectType, String objectName, String objectContent) {
     Activity activity = Activity.newActivity(verb, title, content,
         category, user, object, objectType, objectName, objectContent);
@@ -788,7 +788,7 @@ public class Client {
    * @return
    */
   public ApiResponse postActivity(String verb, String title,
-                                  String content, String category, User user, Entity object,
+                                  String content, String category, User user, UsergridEntity object,
                                   String objectType, String objectName, String objectContent) {
     Activity activity = Activity.newActivity(verb, title, content,
         category, user, object, objectType, objectName, objectContent);
@@ -1023,7 +1023,7 @@ public class Client {
    * @param connetionName
    * @return
    */
-  public ApiResponse disconnectEntities(Entity sourceVertex, Entity TargetVertex, String connetionName) {
+  public ApiResponse disconnectEntities(UsergridEntity sourceVertex, UsergridEntity TargetVertex, String connetionName) {
 
     return apiRequest(HttpMethod.DELETE, null, null, organizationId, applicationId,
         sourceVertex.getType(), sourceVertex.getUuid().toString(), connetionName,
@@ -1081,11 +1081,11 @@ public class Client {
     return q;
   }
 
-  public static void save(final Entity entity) {
+  public static void save(final UsergridEntity usergridEntity) {
 
   }
 
-  public ApiResponse connectEntities(Entity sourceVertex, Entity TargetVertex, String connetionName) {
+  public ApiResponse connectEntities(UsergridEntity sourceVertex, UsergridEntity TargetVertex, String connetionName) {
 
     return this.connectEntities(sourceVertex.getType(), sourceVertex.getUuid().toString(), connetionName, TargetVertex.getUuid().toString());
   }
@@ -1102,7 +1102,7 @@ public class Client {
   }
 
 
-  public Entity getEntity(String s) {
+  public UsergridEntity getEntity(String s) {
     return null;
   }
 
@@ -1117,16 +1117,16 @@ public class Client {
     return null;
   }
 
-  public ApiResponse put(Entity entity) {
-    return updateEntity(entity);
+  public ApiResponse put(UsergridEntity usergridEntity) {
+    return updateEntity(usergridEntity);
   }
 
-  public ApiResponse post(Entity entity) {
-    return this.createEntity(entity);
+  public ApiResponse post(UsergridEntity usergridEntity) {
+    return this.createEntity(usergridEntity);
   }
 
-  public ApiResponse delete(Entity entity) {
-    return this.deleteEntity(entity.getType(), entity.getUuid().toString());
+  public ApiResponse delete(UsergridEntity usergridEntity) {
+    return this.deleteEntity(usergridEntity.getType(), usergridEntity.getUuid().toString());
   }
 
   public interface QueryResult {

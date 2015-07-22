@@ -17,7 +17,6 @@
 package org.apache.usergrid.java.client.entities;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
-import static org.apache.usergrid.java.client.utils.JsonUtils.getStringProperty;
 import static org.apache.usergrid.java.client.utils.JsonUtils.setStringProperty;
 
 import java.util.List;
@@ -26,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.usergrid.java.client.utils.JsonUtils;
 
-public class Device extends Entity {
+public class Device extends UsergridEntity {
 
 	public final static String ENTITY_TYPE = "device";
 
@@ -37,9 +36,9 @@ public class Device extends Entity {
 		setType(ENTITY_TYPE);
 	}
 
-	public Device(Entity entity) {
+	public Device(UsergridEntity usergridEntity) {
 		super();
-		properties = entity.properties;
+		properties = usergridEntity.properties;
 		setType(ENTITY_TYPE);
 	}
 

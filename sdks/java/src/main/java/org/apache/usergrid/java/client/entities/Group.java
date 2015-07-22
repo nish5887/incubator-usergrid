@@ -17,7 +17,6 @@
 package org.apache.usergrid.java.client.entities;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
-import static org.apache.usergrid.java.client.utils.JsonUtils.getStringProperty;
 import static org.apache.usergrid.java.client.utils.JsonUtils.setStringProperty;
 
 import java.util.List;
@@ -26,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.usergrid.java.client.utils.JsonUtils;
 
-public class Group extends Entity {
+public class Group extends UsergridEntity {
 
 	public final static String ENTITY_TYPE = "group";
 
@@ -38,9 +37,9 @@ public class Group extends Entity {
 		setType(ENTITY_TYPE);
 	}
 
-	public Group(Entity entity) {
+	public Group(UsergridEntity usergridEntity) {
 		super();
-		properties = entity.properties;
+		properties = usergridEntity.properties;
 		setType(ENTITY_TYPE);
 	}
 

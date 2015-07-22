@@ -36,12 +36,12 @@ public class Connection {
 
   protected Map<String, JsonNode> properties = new HashMap<String, JsonNode>();
 
-  Entity source;
-  Entity target;
+  UsergridEntity source;
+  UsergridEntity target;
 
   Client client;
 
-  public Connection(Entity source, String label, Entity target) {
+  public Connection(UsergridEntity source, String label, UsergridEntity target) {
     this.source = source;
     this.target = target;
     this.setLabel(label);

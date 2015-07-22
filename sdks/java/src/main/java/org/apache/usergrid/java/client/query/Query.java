@@ -1,7 +1,7 @@
 package org.apache.usergrid.java.client.query;
 
 import org.apache.usergrid.java.client.Client;
-import org.apache.usergrid.java.client.SingletonClient;
+import org.apache.usergrid.java.client.Usergrid;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -107,7 +107,7 @@ public class Query {
   }
 
   public Client.QueryResult get() {
-    return SingletonClient.getInstance().query(this);
+    return Usergrid.getInstance().query(this);
   }
 
   public static class QueryBuilder {

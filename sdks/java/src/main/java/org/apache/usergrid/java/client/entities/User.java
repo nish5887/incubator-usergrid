@@ -18,7 +18,6 @@ package org.apache.usergrid.java.client.entities;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static org.apache.usergrid.java.client.utils.JsonUtils.getBooleanProperty;
-import static org.apache.usergrid.java.client.utils.JsonUtils.getStringProperty;
 import static org.apache.usergrid.java.client.utils.JsonUtils.setBooleanProperty;
 import static org.apache.usergrid.java.client.utils.JsonUtils.setStringProperty;
 
@@ -28,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.usergrid.java.client.utils.JsonUtils;
 
-public class User extends Entity {
+public class User extends UsergridEntity {
 
 	public final static String ENTITY_TYPE = "user";
 
@@ -47,9 +46,9 @@ public class User extends Entity {
 		setType(ENTITY_TYPE);
 	}
 
-	public User(Entity entity) {
+	public User(UsergridEntity usergridEntity) {
 		super();
-		properties = entity.properties;
+		properties = usergridEntity.properties;
 		setType(ENTITY_TYPE);
 	}
 
