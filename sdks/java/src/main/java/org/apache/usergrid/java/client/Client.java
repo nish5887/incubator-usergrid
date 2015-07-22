@@ -1093,6 +1093,10 @@ public class Client {
 
 
 
+  public  ApiResponse queryCollections(){
+    return apiRequest(HttpMethod.GET,null,null,this.organizationId,this.applicationId);
+  }
+
   public ApiResponse queryConnection(String... segments) {
     String[] paramPath = new String[10];
     paramPath[0] = this.organizationId;
