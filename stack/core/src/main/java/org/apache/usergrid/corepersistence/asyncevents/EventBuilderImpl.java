@@ -53,7 +53,7 @@ import rx.Observable;
 @Singleton
 public class EventBuilderImpl implements EventBuilder {
 
-    private static final Logger log = LoggerFactory.getLogger( EventBuilderImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( EventBuilderImpl.class );
 
     private final IndexService indexService;
     private final EntityCollectionManagerFactory entityCollectionManagerFactory;
@@ -80,7 +80,7 @@ public class EventBuilderImpl implements EventBuilder {
         //only process the same version, otherwise ignore
 
 
-        log.debug( "Indexing  in app scope {} entity {}", entity, applicationScope );
+        logger.debug("Indexing  in app scope {} entity {}", entity, applicationScope);
 
         final Observable<IndexOperationMessage> edgeObservable = indexService.indexEntity( applicationScope, entity );
 
@@ -92,8 +92,8 @@ public class EventBuilderImpl implements EventBuilder {
     public Observable<IndexOperationMessage> queueNewEdge( final ApplicationScope applicationScope, final Entity entity,
                                                            final Edge newEdge ) {
 
-        log.debug( "Indexing  in app scope {} with entity {} and new edge {}",
-            new Object[] { entity, applicationScope, newEdge } );
+        logger.debug("Indexing  in app scope {} with entity {} and new edge {}",
+            new Object[]{entity, applicationScope, newEdge});
 
         final Observable<IndexOperationMessage> edgeObservable =
             indexService.indexEdge( applicationScope, entity, newEdge );
@@ -105,7 +105,7 @@ public class EventBuilderImpl implements EventBuilder {
     @Override
     public Observable<IndexOperationMessage> queueDeleteEdge( final ApplicationScope applicationScope,
                                                               final Edge edge ) {
-        log.debug( "Deleting in app scope {} with edge {} }", applicationScope, edge );
+        logger.debug("Deleting in app scope {} with edge {} }", applicationScope, edge);
 
         final Observable<IndexOperationMessage> edgeObservable =
             indexService.deleteIndexEdge( applicationScope, edge ).flatMap( batch -> {
@@ -122,7 +122,7 @@ public class EventBuilderImpl implements EventBuilder {
 
     @Override
     public EntityDeleteResults queueEntityDelete( final ApplicationScope applicationScope, final Id entityId ) {
-        log.debug( "Deleting entity id from index in app scope {} with entityId {} }", applicationScope, entityId );
+        logger.debug("Deleting entity id from index in app scope {} with entityId {} }", applicationScope, entityId);
 
         final EntityCollectionManager ecm = entityCollectionManagerFactory.createCollectionManager( applicationScope );
 

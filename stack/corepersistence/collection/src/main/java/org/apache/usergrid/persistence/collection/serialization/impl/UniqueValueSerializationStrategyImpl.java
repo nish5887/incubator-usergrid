@@ -34,7 +34,6 @@ import org.apache.usergrid.persistence.collection.serialization.SerializationFig
 import org.apache.usergrid.persistence.collection.serialization.UniqueValue;
 import org.apache.usergrid.persistence.collection.serialization.UniqueValueSerializationStrategy;
 import org.apache.usergrid.persistence.collection.serialization.UniqueValueSet;
-import org.apache.usergrid.persistence.collection.serialization.impl.util.LegacyScopeUtils;
 import org.apache.usergrid.persistence.core.astyanax.CassandraFig;
 import org.apache.usergrid.persistence.core.astyanax.ColumnNameIterator;
 import org.apache.usergrid.persistence.core.astyanax.ColumnParser;
@@ -48,7 +47,6 @@ import org.apache.usergrid.persistence.model.entity.Id;
 import org.apache.usergrid.persistence.model.field.Field;
 
 import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
 import com.netflix.astyanax.ColumnListMutation;
 import com.netflix.astyanax.Keyspace;
 import com.netflix.astyanax.MutationBatch;
@@ -66,7 +64,7 @@ import com.netflix.astyanax.util.RangeBuilder;
 public abstract class UniqueValueSerializationStrategyImpl<FieldKey, EntityKey>
     implements UniqueValueSerializationStrategy {
 
-    private static final Logger log = LoggerFactory.getLogger( UniqueValueSerializationStrategyImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( UniqueValueSerializationStrategyImpl.class );
 
 
     private final MultiTennantColumnFamily<ScopedRowKey<FieldKey>, EntityVersion>
@@ -227,8 +225,8 @@ public abstract class UniqueValueSerializationStrategyImpl<FieldKey, EntityKey>
             ScopedRowKey.fromKey( applicationId, entityKey ) ) );
 
 
-        if ( log.isDebugEnabled() ) {
-            log.debug( "Writing unique value version={} name={} value={} ",
+        if ( logger.isDebugEnabled() ) {
+            logger.debug( "Writing unique value version={} name={} value={} ",
                 new Object[] {
                     uniqueValue.getEntityVersion(), uniqueValue.getField().getName(),
                     uniqueValue.getField().getValue()

@@ -52,6 +52,8 @@ import com.netflix.astyanax.serializers.UUIDSerializer;
 import org.apache.usergrid.persistence.model.field.ArrayField;
 import org.apache.usergrid.persistence.model.field.ListField;
 import org.codehaus.jackson.map.deser.CustomDeserializerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -61,6 +63,7 @@ import org.codehaus.jackson.map.deser.CustomDeserializerFactory;
 public class MvccEntitySerializationStrategyV2Impl extends MvccEntitySerializationStrategyImpl {
 
 
+    private static final Logger logger = LoggerFactory.getLogger(MvccEntitySerializationStrategyV2Impl.class);
     private static final IdRowCompositeSerializer ID_SER = IdRowCompositeSerializer.get();
 
 
@@ -171,6 +174,7 @@ public class MvccEntitySerializationStrategyV2Impl extends MvccEntitySerializati
                 entityBytes = MAPPER.writeValueAsBytes( entity );
             }
             catch ( JsonProcessingException e ) {
+                logger.error( "Unable to serialize entity", e );
                 throw new RuntimeException( "Unable to serialize entity", e );
             }
 
@@ -206,6 +210,7 @@ public class MvccEntitySerializationStrategyV2Impl extends MvccEntitySerializati
                 fieldBuffer = FIELD_BUFFER_SERIALIZER.fromByteBuffer( byteBuffer );
             }
             catch ( Exception e ) {
+                logger.error("Error", e);
                 throw new DataCorruptionException( "Unable to de-serialze entity", e );
             }
 
@@ -234,6 +239,7 @@ public class MvccEntitySerializationStrategyV2Impl extends MvccEntitySerializati
                 storedEntity = MAPPER.readValue( array, Entity.class );
             }
             catch ( Exception e ) {
+                logger.error("Error", e);
                 throw new DataCorruptionException( "Unable to read entity data", e );
             }
 

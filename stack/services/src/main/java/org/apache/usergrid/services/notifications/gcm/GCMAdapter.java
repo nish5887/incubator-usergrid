@@ -36,11 +36,10 @@ import org.apache.usergrid.services.notifications.TaskTracker;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class GCMAdapter implements ProviderAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GCMAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(GCMAdapter.class);
     private static final int SEND_RETRIES = 3;
     private static int BATCH_SIZE = 1000;
     private final Notifier notifier;
@@ -59,7 +58,7 @@ public class GCMAdapter implements ProviderAdapter {
         Message message = new Message.Builder().build();
         try {
             Result result = sender.send(message, "device_token", 1);
-            LOG.debug("testConnection result: {}", result);
+            if(logger.isDebugEnabled())  logger.debug("testConnection result: {}", result);
         } catch (IOException e) {
             throw new ConnectionException(e.getMessage(), e);
         }
@@ -146,7 +145,7 @@ public class GCMAdapter implements ProviderAdapter {
                 }
             }
         }catch (Exception e){
-            LOG.error("error while trying to send on stop",e);
+            logger.error("error while trying to send on stop", e);
         }
     }
 
@@ -206,7 +205,7 @@ public class GCMAdapter implements ProviderAdapter {
                 Message message = builder.build();
 
                 MulticastResult multicastResult = sender.send(message, ids, SEND_RETRIES);
-                LOG.debug("sendNotification result: {}", multicastResult);
+                if(logger.isDebugEnabled()) logger.debug("sendNotification result: {}", multicastResult);
 
                 for (int i = 0; i < multicastResult.getResults().size(); i++) {
                     Result result = multicastResult.getResults().get(i);

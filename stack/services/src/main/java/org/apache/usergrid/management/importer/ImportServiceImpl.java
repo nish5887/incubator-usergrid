@@ -174,6 +174,7 @@ public class ImportServiceImpl implements ImportService {
 
             return importEntity;
         }catch(Exception e){
+            logger.error("Unable to get import entity", e );
             throw new RuntimeException("Unable to get import entity", e );
         }
 
@@ -946,11 +947,11 @@ public class ImportServiceImpl implements ImportService {
         jp.close();
 
         if ( FileImport.State.FAILED.equals( fileImport.getState() ) ) {
-            logger.debug("\n\nFailed to completely write entities, skipping second phase. File: {}\n",
+            if(logger.isDebugEnabled()) logger.debug("Failed to completely write entities, skipping second phase. File: {}\n",
                 fileImport.getFileName());
             return;
         }
-        logger.debug("\n\nWrote entities. File: {}\n", fileImport.getFileName() );
+        if(logger.isDebugEnabled()) logger.debug("Wrote entities. File: {}\n", fileImport.getFileName() );
 
 
         // SECOND PASS: import all connections and dictionaries
@@ -980,11 +981,11 @@ public class ImportServiceImpl implements ImportService {
 
         jp.close();
 
-        logger.debug("\n\nparseEntitiesAndConnectionsFromJson(): Wrote others for file {}\n",
+        if(logger.isDebugEnabled()) logger.debug("parseEntitiesAndConnectionsFromJson(): Wrote others for file {}\n",
             fileImport.getFileName());
 
         if ( FileImport.State.FAILED.equals( fileImport.getState() ) ) {
-            logger.debug("\n\nparseEntitiesAndConnectionsFromJson(): failed to completely write entities\n");
+            if(logger.isDebugEnabled()) logger.debug("parseEntitiesAndConnectionsFromJson(): failed to completely write entities");
             return;
         }
 
@@ -992,11 +993,11 @@ public class ImportServiceImpl implements ImportService {
         tracker.complete();
 
         if ( FileImport.State.FAILED.equals( fileImport.getState() ) ) {
-            logger.debug("\n\nFailed to completely wrote connections and dictionaries. File: {}\n",
+            if(logger.isDebugEnabled()) logger.debug("Failed to completely wrote connections and dictionaries. File: {}",
                 fileImport.getFileName());
             return;
         }
-        logger.debug("\n\nWrote connections and dictionaries. File: {}\n", fileImport.getFileName());
+        if(logger.isDebugEnabled()) logger.debug("Wrote connections and dictionaries. File: {}", fileImport.getFileName());
     }
 
 
@@ -1257,7 +1258,7 @@ public class ImportServiceImpl implements ImportService {
                     subscriber.onCompleted();
                 }
 
-                logger.debug("process(): done parsing JSON");
+                if(logger.isDebugEnabled()) logger.debug("process(): done parsing JSON");
 
             } catch (Exception e) {
 

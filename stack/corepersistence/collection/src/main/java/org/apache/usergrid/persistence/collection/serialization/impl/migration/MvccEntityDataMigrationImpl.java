@@ -68,7 +68,7 @@ import rx.schedulers.Schedulers;
 public class MvccEntityDataMigrationImpl implements DataMigration<EntityIdScope> {
 
 
-    private static final Logger LOGGER = LoggerFactory.getLogger( MvccEntityDataMigrationImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( MvccEntityDataMigrationImpl.class );
 
     private final Keyspace keyspace;
     private final VersionedMigrationSet<MvccEntitySerializationStrategy> allVersions;
@@ -250,6 +250,7 @@ public class MvccEntityDataMigrationImpl implements DataMigration<EntityIdScope>
             po.update( targetVersion, "Finished copying " + count + " entities to the new format" );
         }
         catch ( ConnectionException e ) {
+            logger.error("ConnectionException in executeBatch", e);
             po.failed( targetVersion, "Failed to execute mutation in cassandra" );
             throw new DataMigrationException( "Unable to migrate batches ", e );
         }

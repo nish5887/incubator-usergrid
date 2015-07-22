@@ -81,7 +81,7 @@ public class MvccEntitySerializationStrategyV3Impl implements MvccEntitySerializ
 
     private final EntitySerializer entitySerializer;
 
-    private static final Logger log = LoggerFactory.getLogger( MvccEntitySerializationStrategyV3Impl.class );
+    private static final Logger logger = LoggerFactory.getLogger( MvccEntitySerializationStrategyV3Impl.class );
 
 
     protected final Keyspace keyspace;
@@ -186,6 +186,7 @@ public class MvccEntitySerializationStrategyV3Impl implements MvccEntitySerializ
                             .withColumnSlice( COL_VALUE ).execute().getResult();
                     }
                     catch ( ConnectionException e ) {
+                        logger.error("ConnectionException: MvccEntitySerializationStrategyV3Impl.load()",e);
                         throw new CollectionRuntimeException( null, applicationScope,
                             "An error occurred connecting to cassandra", e );
                     }
@@ -346,9 +347,9 @@ public class MvccEntitySerializationStrategyV3Impl implements MvccEntitySerializ
                 deSerialized = column.getValue( entityJsonSerializer );
             }
             catch ( DataCorruptionException e ) {
-                log.error(
-                        "DATA CORRUPTION DETECTED when de-serializing entity with Id {}.  This means the"
-                                + " write was truncated.", id, e );
+                logger.error(
+                    "DATA CORRUPTION DETECTED when de-serializing entity with Id {}.  This means the"
+                        + " write was truncated.", id, e);
                 //return an empty entity, we can never load this one, and we don't want it to bring the system
                 //to a grinding halt
                 //TODO fix this
@@ -445,8 +446,8 @@ public class MvccEntitySerializationStrategyV3Impl implements MvccEntitySerializ
 
             }
             catch ( Exception e ) {
-                if( log.isDebugEnabled() ){
-                    log.debug("Entity Wrapper Deserialized: " + StringSerializer.get().fromByteBuffer(byteBuffer));
+                if( logger.isDebugEnabled() ){
+                    logger.debug("Entity Wrapper Deserialized: " + StringSerializer.get().fromByteBuffer(byteBuffer));
                 }
                 throw new DataCorruptionException( "Unable to read entity data", e );
             }

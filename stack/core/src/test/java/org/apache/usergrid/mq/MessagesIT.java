@@ -88,21 +88,21 @@ public class MessagesIT extends AbstractCoreIT {
         qm.postToQueue( "/foo/bar", message );
 /*
         messages = qm.getFromQueue("/foo/bar", null);
-		LOG.info(JsonUtils.mapToFormattedJsonString(messages));
+		logger.info(JsonUtils.mapToFormattedJsonString(messages));
 		assertEquals(1, messages.size());
 
 		messages = qm.getFromQueue("/foo/bar", null);
-		LOG.info(JsonUtils.mapToFormattedJsonString(messages));
+		logger.info(JsonUtils.mapToFormattedJsonString(messages));
 		assertEquals(1, messages.size());
 
 		messages = qm.getFromQueue("/foo/bar", null);
-		LOG.info(JsonUtils.mapToFormattedJsonString(messages));
+		logger.info(JsonUtils.mapToFormattedJsonString(messages));
 		assertEquals(0, messages.size());
 
 		messages = qm.getFromQueue("/foo/bar",
 				new QueueQuery().withPosition(QueuePosition.END)
 						.withPreviousCount(3));
-		LOG.info(JsonUtils.mapToFormattedJsonString(messages));
+		logger.info(JsonUtils.mapToFormattedJsonString(messages));
 		assertEquals(3, messages.size());
 */
 
@@ -110,8 +110,8 @@ public class MessagesIT extends AbstractCoreIT {
 
         //TODO Re-evaluate queues and make a cleaner interface
 //        Map<String, Long> counters = qm.getQueueCounters( "/" );
-//        LOG.info( "dumping counters...." + counters );
-//        LOG.info( JsonUtils.mapToFormattedJsonString( counters ) );
+//        logger.info( "dumping counters...." + counters );
+//        logger.info( JsonUtils.mapToFormattedJsonString( counters ) );
 //        assertEquals( 1, counters.size() );
 //        assertNotNull( counters.get( "/foo/bar/" ) );
 //        assertEquals( new Long( 3 ), counters.get( "/foo/bar/" ) );

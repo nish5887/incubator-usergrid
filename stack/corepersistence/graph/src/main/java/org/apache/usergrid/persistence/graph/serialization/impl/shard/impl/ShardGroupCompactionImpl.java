@@ -81,7 +81,7 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
 
 
     private final AtomicLong countAudits;
-    private static final Logger LOG = LoggerFactory.getLogger( ShardGroupCompactionImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( ShardGroupCompactionImpl.class );
 
 
     private static final Charset CHARSET = Charset.forName( "UTF-8" );
@@ -149,8 +149,8 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
         Preconditions
             .checkArgument( group.shouldCompact( startTime ), "Compaction cannot be run yet.  Ignoring compaction." );
 
-        if(LOG.isDebugEnabled()) {
-            LOG.debug("Compacting shard group. count is {} ", countAudits.get());
+        if(logger.isDebugEnabled()) {
+            logger.debug("Compacting shard group. count is {} ", countAudits.get());
         }
         final CompactionResult.CompactionBuilder resultBuilder = CompactionResult.builder();
 
@@ -215,7 +215,7 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
                         deleteRowBatch.execute();
                     }
                     catch ( Throwable t ) {
-                        LOG.error( "Unable to move edges from shard {} to shard {}", sourceShard, targetShard );
+                        logger.error("Unable to move edges from shard {} to shard {}", sourceShard, targetShard);
                     }
                 }
             }
@@ -227,11 +227,11 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
             deleteRowBatch.execute();
         }
         catch ( Throwable t ) {
-            LOG.error( "Unable to move edges to target shard {}", targetShard );
+            logger.error("Unable to move edges to target shard {}", targetShard);
         }
 
 
-        LOG.info( "Finished compacting {} shards and moved {} edges", sourceShards, edgeCount );
+        logger.info("Finished compacting {} shards and moved {} edges", sourceShards, edgeCount);
 
         resultBuilder.withCopiedEdges( edgeCount ).withSourceShards( sourceShards ).withTargetShard( targetShard );
 
@@ -255,7 +255,7 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
                     continue;
                 }
 
-                LOG.info( "Source shards have been fully drained.  Removing shard {}", source );
+                logger.info("Source shards have been fully drained.  Removing shard {}", source);
 
                 final MutationBatch shardRemoval = edgeShardSerialization.removeShardMeta( scope, source, edgeMeta );
                 shardRemovalRollup.mergeShallow( shardRemoval );
@@ -272,7 +272,7 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
             }
 
 
-            LOG.info( "Shard has been fully compacted.  Marking shard {} as compacted in Cassandra", targetShard );
+            logger.info("Shard has been fully compacted.  Marking shard {} as compacted in Cassandra", targetShard);
 
             //Overwrite our shard index with a newly created one that has been marked as compacted
             Shard compactedShard = new Shard( targetShard.getShardIndex(), timeService.getCurrentTime(), true );
@@ -305,9 +305,9 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
         }
 
         countAudits.getAndIncrement();
-        
-        if(LOG.isDebugEnabled()) {
-            LOG.debug("Auditing shard group. count is {} ", countAudits.get());
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("Auditing shard group. count is {} ", countAudits.get());
         }
         /**
          * Try and submit.  During back pressure, we may not be able to submit, that's ok.  Better to drop than to
@@ -321,7 +321,7 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
         catch ( RejectedExecutionException ree ) {
 
             //ignore, if this happens we don't care, we're saturated, we can check later
-            LOG.error( "Rejected audit for shard of scope {} edge, meta {} and group {}", scope, edgeMeta, group );
+            logger.error("Rejected audit for shard of scope {} edge, meta {} and group {}", scope, edgeMeta, group);
 
             return Futures.immediateFuture( AuditResult.NOT_CHECKED );
         }
@@ -332,13 +332,13 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
         Futures.addCallback( future, new FutureCallback<AuditResult>() {
             @Override
             public void onSuccess( @Nullable final AuditResult result ) {
-                LOG.debug( "Successfully completed audit of task {}", result );
+                if(logger.isDebugEnabled()) logger.debug( "Successfully completed audit of task {}", result );
             }
 
 
             @Override
             public void onFailure( final Throwable t ) {
-                LOG.error( "Unable to perform audit.  Exception is ", t );
+                logger.error("Unable to perform audit.  Exception is ", t);
             }
         } );
 
@@ -413,8 +413,8 @@ public class ShardGroupCompactionImpl implements ShardGroupCompaction {
                  */
                 try {
                     CompactionResult result = compact( scope, edgeMeta, group );
-                    LOG.info( "Compaction result for compaction of scope {} with edge meta data of {} and shard group "
-                            + "{} is {}", new Object[] { scope, edgeMeta, group, result } );
+                    logger.info("Compaction result for compaction of scope {} with edge meta data of {} and shard group "
+                        + "{} is {}", new Object[]{scope, edgeMeta, group, result});
                 }
                 finally {
                     shardCompactionTaskTracker.complete( scope, edgeMeta, group );

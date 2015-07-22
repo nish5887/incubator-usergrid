@@ -53,7 +53,7 @@ public class NotifiersService extends AbstractCollectionService {
                 NotificationsService ns = (NotificationsService) sm.getService("notifications");
                 ns.testConnection(notifier);
             } catch (Exception e) {
-                logger.info("notifier testConnection() failed", e);
+                logger.error("notifier testConnection() failed", e);
                 em.delete(notifier);
                 throw e;
             }

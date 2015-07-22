@@ -156,7 +156,7 @@ public class IndexRefreshCommandImpl implements IndexRefreshCommand {
 
 
                 if ( indexes.length == 0 ) {
-                    logger.debug( "Not refreshing indexes. none found" );
+                    if(logger.isDebugEnabled()) logger.debug( "Not refreshing indexes. none found" );
                 }
                 //Added For Graphite Metrics
                 RefreshResponse response =
@@ -169,7 +169,7 @@ public class IndexRefreshCommandImpl implements IndexRefreshCommand {
                         logger.error( "Failed to refresh index:{} reason:{}", sfe.index(), sfe.reason() );
                     }
                 }
-                logger.debug( "Refreshed indexes: {},success:{} failed:{} ", StringUtils.join( indexes, ", " ),
+                if(logger.isDebugEnabled()) logger.debug( "Refreshed indexes: {},success:{} failed:{} ", StringUtils.join( indexes, ", " ),
                     successfulShards, failedShards);
             })
 

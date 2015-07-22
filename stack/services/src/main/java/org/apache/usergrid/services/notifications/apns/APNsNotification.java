@@ -23,6 +23,8 @@ import com.relayrides.pushy.apns.util.TokenUtil;
 
 import org.apache.usergrid.persistence.entities.Notification;
 import org.apache.usergrid.services.notifications.TaskTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -31,7 +33,7 @@ import java.util.Date;
  */
 public class APNsNotification extends SimpleApnsPushNotification {
 
-
+    private static final Logger logger = LoggerFactory.getLogger(APNsNotification.class);
     private TaskTracker tracker;
 
     /**
@@ -51,6 +53,7 @@ public class APNsNotification extends SimpleApnsPushNotification {
 
           return new APNsNotification(tracker, date.getTime(), token, payload, notification);
       }catch(MalformedTokenStringException mtse){
+          logger.error("MalformedTokenStringException", mtse);
           throw new RuntimeException("Exception converting token",mtse);
       }
     }

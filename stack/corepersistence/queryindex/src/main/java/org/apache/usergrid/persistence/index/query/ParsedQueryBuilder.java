@@ -53,7 +53,7 @@ public class ParsedQueryBuilder {
         if ( StringUtils.isEmpty( ql ) ) {
             return null;
         }
-        logger.debug( "Processing raw query: " + ql );
+        if(logger.isDebugEnabled()) logger.debug( "Processing raw query: " + ql );
 
         final String trimmedLowercaseQuery = ql.trim().toLowerCase();
 

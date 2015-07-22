@@ -58,7 +58,7 @@ import com.netflix.astyanax.util.TimeUUIDUtils;
 public class NodeShardAllocationImpl implements NodeShardAllocation {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger( NodeShardAllocationImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( NodeShardAllocationImpl.class );
 
     private static final Shard MIN_SHARD = new Shard( 0, 0, true );
 
@@ -173,8 +173,8 @@ public class NodeShardAllocationImpl implements NodeShardAllocation {
             return false;
         }
 
-        if(LOG.isDebugEnabled()){
-            LOG.debug("Count of {} has exceeded shard config of {} will begin compacting", count, shardSize);
+        if(logger.isDebugEnabled()){
+            logger.debug("Count of {} has exceeded shard config of {} will begin compacting", count, shardSize);
         }
 
         /**
@@ -198,8 +198,8 @@ public class NodeShardAllocationImpl implements NodeShardAllocation {
 
 
         if ( !edges.hasNext() ) {
-            LOG.warn( "Tried to allocate a new shard for edge meta data {}, "
-                    + "but no max value could be found in that row", directedEdgeMeta );
+            logger.warn("Tried to allocate a new shard for edge meta data {}, "
+                + "but no max value could be found in that row", directedEdgeMeta);
             return false;
         }
 
@@ -229,7 +229,7 @@ public class NodeShardAllocationImpl implements NodeShardAllocation {
          * Sanity check in case our counters become severely out of sync with our edge state in cassandra.
          */
         if(marked == null){
-            LOG.warn( "Incorrect shard count for shard group {}", shardEntryGroup );
+            logger.warn("Incorrect shard count for shard group {}", shardEntryGroup);
             return false;
         }
 
@@ -237,7 +237,7 @@ public class NodeShardAllocationImpl implements NodeShardAllocation {
 
         final Shard newShard = new Shard( marked.getTimestamp(), createTimestamp, false );
 
-        LOG.info( "Allocating new shard {} for edge meta {}", newShard, directedEdgeMeta );
+        logger.info("Allocating new shard {} for edge meta {}", newShard, directedEdgeMeta);
 
         final MutationBatch batch = this.edgeShardSerialization.writeShardMeta( scope, newShard, directedEdgeMeta );
 

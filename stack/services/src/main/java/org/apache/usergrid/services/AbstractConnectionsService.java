@@ -298,7 +298,7 @@ public class AbstractConnectionsService extends AbstractService {
 
         if ( connecting() ) {
             if ( query.hasQueryPredicates() ) {
-                logger.debug( "Attempted query of backwards connections" );
+                if(logger.isDebugEnabled()) logger.debug( "Attempted query of backwards connections" );
                 return null;
             }
             else {

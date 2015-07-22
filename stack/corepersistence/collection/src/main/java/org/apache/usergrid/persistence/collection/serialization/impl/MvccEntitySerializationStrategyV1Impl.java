@@ -46,6 +46,8 @@ import com.netflix.astyanax.serializers.AbstractSerializer;
 import com.netflix.astyanax.serializers.ByteBufferSerializer;
 import com.netflix.astyanax.serializers.BytesArraySerializer;
 import com.netflix.astyanax.serializers.UUIDSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -56,6 +58,7 @@ public class MvccEntitySerializationStrategyV1Impl extends MvccEntitySerializati
 
     private static final EntitySerializer ENTITY_JSON_SER = new EntitySerializer();
 
+    private static final Logger logger = LoggerFactory.getLogger(MvccEntitySerializationStrategyV1Impl.class);
 
     private static final IdRowCompositeSerializer ID_SER = IdRowCompositeSerializer.get();
 
@@ -120,6 +123,7 @@ public class MvccEntitySerializationStrategyV1Impl extends MvccEntitySerializati
                 mapper.enableDefaultTypingAsProperty( ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, "@class" );
             }
             catch ( Exception e ) {
+                logger.error("Error creating EntitySerializer", e);
                 throw new RuntimeException( "Error setting up mapper", e );
             }
         }
@@ -158,6 +162,7 @@ public class MvccEntitySerializationStrategyV1Impl extends MvccEntitySerializati
                 builder.addBytes( entityBytes );
             }
             catch ( Exception e ) {
+                logger.error("Error", e);
                 throw new RuntimeException( "Unable to serialize entity", e );
             }
 
@@ -180,6 +185,7 @@ public class MvccEntitySerializationStrategyV1Impl extends MvccEntitySerializati
                 parser = Composites.newCompositeParser( byteBuffer );
             }
             catch ( Exception e ) {
+                logger.error("Error parsing byte buffer in MvccEntitySerializationStrategyV1Impl fromByteBuffer", e);
                 throw new DataCorruptionException( "Unable to de-serialze entity", e );
             }
 

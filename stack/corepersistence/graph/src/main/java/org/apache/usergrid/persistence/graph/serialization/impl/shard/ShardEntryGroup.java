@@ -41,7 +41,7 @@ import com.google.common.base.Preconditions;
  */
 public class ShardEntryGroup {
 
-    private static final Logger LOG = LoggerFactory.getLogger( ShardEntryGroup.class );
+    private static final Logger logger = LoggerFactory.getLogger( ShardEntryGroup.class );
 
     private List<Shard> shards;
 
@@ -143,12 +143,12 @@ public class ShardEntryGroup {
 
 
         if(compactionTarget != null){
-            LOG.debug( "Returning shards {} and {} as read shards", compactionTarget, staticShard );
+            if(logger.isDebugEnabled()) logger.debug("Returning shards {} and {} as read shards", compactionTarget, staticShard);
             return Arrays.asList( compactionTarget, staticShard );
         }
 
 
-        LOG.debug( "Returning shards {} read shard", staticShard );
+        if(logger.isDebugEnabled()) logger.debug("Returning shards {} read shard", staticShard);
         return  Collections.singleton( staticShard );
     }
 
@@ -168,7 +168,7 @@ public class ShardEntryGroup {
 
             final Shard compactionTarget = getCompactionTarget();
 
-            LOG.debug( "Returning shard {} as write shard", compactionTarget);
+            if(logger.isDebugEnabled()) logger.debug("Returning shard {} as write shard", compactionTarget);
 
             return Collections.singleton( compactionTarget  );
 
@@ -177,7 +177,7 @@ public class ShardEntryGroup {
         final Shard staticShard = getRootShard();
 
 
-        LOG.debug( "Returning shard {} as write shard", staticShard);
+        if(logger.isDebugEnabled()) logger.debug("Returning shard {} as write shard", staticShard);
 
         return Collections.singleton( staticShard );
 

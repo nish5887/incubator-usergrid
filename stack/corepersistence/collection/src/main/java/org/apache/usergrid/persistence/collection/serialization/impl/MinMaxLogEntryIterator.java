@@ -56,7 +56,7 @@ public class MinMaxLogEntryIterator implements Iterator<MvccLogEntry> {
                 advance();
             }
             catch ( ConnectionException e ) {
-                throw new RuntimeException( "Unable to query cassandra", e );
+                throw new RuntimeException( "ConnectionException, Unable to query cassandra", e );
             }
         }
 

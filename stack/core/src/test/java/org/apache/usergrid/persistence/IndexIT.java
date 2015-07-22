@@ -106,7 +106,7 @@ public class IndexIT extends AbstractCoreIT {
 
         query = Query.fromQL( "order by name desc" ).withCursor(r.getCursor());
         r = em.searchCollection( em.getApplicationRef(), "items", query );
-        // LOG.info(JsonUtils.mapToFormattedJsonString(r.getEntities()));
+        // logger.info(JsonUtils.mapToFormattedJsonString(r.getEntities()));
         for ( Entity entity : r.getEntities() ) {
             i--;
             assertEquals( alphabet[i], entity.getProperty( "name" ) );

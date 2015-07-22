@@ -285,7 +285,7 @@ public class EsEntityIndexImpl implements EntityIndex,VersionedData {
         // to receive documents. Occasionally we see errors.
         // See this post: http://s.apache.org/index-missing-exception
 
-        logger.debug("Testing new index name: read {} write {}", alias.getReadAlias(), alias.getWriteAlias());
+        if(logger.isDebugEnabled()) logger.debug("Testing new index name: read {} write {}", alias.getReadAlias(), alias.getWriteAlias());
 
         final RetryOperation retryOperation = () -> {
             final String tempId = UUIDGenerator.newTimeUUID().toString();
@@ -431,8 +431,8 @@ public class EsEntityIndexImpl implements EntityIndex,VersionedData {
 
         srb.setPostFilter(entityEdgeFilter);
 
-        if ( logger.isDebugEnabled() ) {
-            logger.debug( "Searching for marked versions in index (read alias): {}\n  nodeId: {},\n   query: {} ",
+        if (logger.isDebugEnabled()) {
+            logger.debug("Searching for marked versions in index (read alias): {}\n  nodeId: {},\n   query: {} ",
                 this.alias.getReadAlias(),entityId, srb );
         }
 
@@ -613,7 +613,7 @@ public class EsEntityIndexImpl implements EntityIndex,VersionedData {
         final SearchHits searchHits = searchResponse.getHits();
         final SearchHit[] hits = searchHits.getHits();
 
-        logger.debug( "   Hit count: {} Total hits: {}", hits.length, searchHits.getTotalHits() );
+        if(logger.isDebugEnabled()) logger.debug( "   Hit count: {} Total hits: {}", hits.length, searchHits.getTotalHits() );
 
         List<CandidateResult> candidates = new ArrayList<>( hits.length );
 
@@ -649,7 +649,8 @@ public class EsEntityIndexImpl implements EntityIndex,VersionedData {
             candidates.add( candidateResult );
         }
 
-        logger.debug( "Aggregated {} out of {} hits ",candidates.size(),searchHits.getTotalHits() );
+        if (logger.isDebugEnabled())
+            logger.debug("Aggregated {} out of {} hits ", candidates.size(), searchHits.getTotalHits());
 
         return  candidates;
 

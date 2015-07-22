@@ -220,8 +220,8 @@ public class ImportServiceIT {
 
                 for (Entity eachEntity : collection.getEntities() ) {
 
-                    logger.debug("Checking entity {} {}:{}",
-                        new Object[] { eachEntity.getName(), eachEntity.getType(), eachEntity.getUuid()} );
+                    if (logger.isDebugEnabled()) logger.debug("Checking entity {} {}:{}",
+                        new Object[]{eachEntity.getName(), eachEntity.getType(), eachEntity.getUuid()});
 
                     //check for dictionaries --> checking permissions in the dictionaries
                     EntityRef er;

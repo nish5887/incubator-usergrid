@@ -51,7 +51,8 @@ import com.google.common.cache.LoadingCache;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.netflix.astyanax.Keyspace;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -60,6 +61,7 @@ import com.netflix.astyanax.Keyspace;
 @Singleton
 public class EntityCollectionManagerFactoryImpl implements EntityCollectionManagerFactory {
 
+    private static final Logger logger = LoggerFactory.getLogger(EntityCollectionManagerFactoryImpl.class);
 
     private final WriteStart writeStart;
     private final WriteUniqueVerify writeVerifyUnique;
@@ -139,6 +141,7 @@ public class EntityCollectionManagerFactoryImpl implements EntityCollectionManag
         try{
             return ecmCache.get(applicationScope);
         }catch (ExecutionException ee){
+            logger.error("ExecutionException in createCollectionManager", ee);
             throw new RuntimeException(ee);
         }
     }

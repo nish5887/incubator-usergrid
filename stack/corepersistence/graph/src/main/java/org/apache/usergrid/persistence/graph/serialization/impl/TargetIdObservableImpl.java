@@ -62,8 +62,7 @@ public class TargetIdObservableImpl implements TargetIdObservable {
             public Id call( final Edge edge ) {
                 final Id targetNode = edge.getTargetNode();
 
-                logger.debug( "Emitting targetId of {}", edge );
-
+                if(logger.isDebugEnabled()) logger.debug( "Emitting targetId of {}", edge );
 
                 return targetNode;
             }

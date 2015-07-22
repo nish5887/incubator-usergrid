@@ -34,7 +34,6 @@ import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.usergrid.persistence.core.future.FutureObservable;
 import org.apache.usergrid.persistence.core.metrics.MetricsFactory;
 import org.apache.usergrid.persistence.index.IndexFig;
 
@@ -55,7 +54,7 @@ import rx.schedulers.Schedulers;
  */
 @Singleton
 public class EsIndexBufferConsumerImpl implements IndexBufferConsumer {
-    private static final Logger log = LoggerFactory.getLogger( EsIndexBufferConsumerImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( EsIndexBufferConsumerImpl.class );
 
     private final IndexFig config;
     private final FailureMonitorImpl failureMonitor;
@@ -162,7 +161,7 @@ public class EsIndexBufferConsumerImpl implements IndexBufferConsumer {
             final int indexOperationSetSize = indexOperationSet.size();
             final int deIndexOperationSetSize = deIndexOperationSet.size();
 
-            log.debug( "Emitting {} add and {} remove operations", indexOperationSetSize, deIndexOperationSetSize );
+            if(logger.isDebugEnabled()) logger.debug( "Emitting {} add and {} remove operations", indexOperationSetSize, deIndexOperationSetSize );
 
             indexSizeCounter.dec( indexOperationSetSize );
             indexSizeCounter.dec( deIndexOperationSetSize );
@@ -179,11 +178,11 @@ public class EsIndexBufferConsumerImpl implements IndexBufferConsumer {
             .flatMap( individualOps -> Observable.from( individualOps )
                 //collect them
                 .collect( () -> initRequest(), ( bulkRequestBuilder, batchOperation ) -> {
-                    log.debug( "adding operation {} to bulkRequestBuilder {}", batchOperation, bulkRequestBuilder );
+                    if(logger.isDebugEnabled()) logger.debug("adding operation {} to bulkRequestBuilder {}", batchOperation, bulkRequestBuilder);
                     batchOperation.doOperation( client, bulkRequestBuilder );
                 } ) )
                 //write them
-            .doOnNext( bulkRequestBuilder -> sendRequest( bulkRequestBuilder ) ).doOnError( t -> log.error( "Unable to process batches", t ) );
+            .doOnNext( bulkRequestBuilder -> sendRequest( bulkRequestBuilder ) ).doOnError( t -> logger.error( "Unable to process batches", t ) );
 
 
         //now that we've processed them all, ack the futures after our last batch comes through
@@ -202,7 +201,7 @@ public class EsIndexBufferConsumerImpl implements IndexBufferConsumer {
                 processedIndexOp.done();
                 roundtripTimer.update(System.currentTimeMillis() - processedIndexOp.getCreationTime());
             }
-        ).doOnError(t -> log.error("Unable to ack futures", t));
+        ).doOnError(t -> logger.error("Unable to ack futures", t));
     }
 
 
@@ -235,7 +234,7 @@ public class EsIndexBufferConsumerImpl implements IndexBufferConsumer {
             responses = bulkRequest.execute().actionGet( );
         }
         catch ( Throwable t ) {
-            log.error( "Unable to communicate with elasticsearch" );
+            logger.error("Unable to communicate with elasticsearch");
             failureMonitor.fail( "Unable to execute batch", t );
             throw t;
         }
@@ -247,9 +246,9 @@ public class EsIndexBufferConsumerImpl implements IndexBufferConsumer {
         for ( BulkItemResponse response : responses ) {
 
             if ( response.isFailed() ) {
-                // log error and continue processing
-                log.error( "Unable to index id={}, type={}, index={}, failureMessage={} ", response.getId(),
-                    response.getType(), response.getIndex(), response.getFailureMessage() );
+                // logger error and continue processing
+                logger.error("Unable to index id={}, type={}, index={}, failureMessage={} ", response.getId(),
+                    response.getType(), response.getIndex(), response.getFailureMessage());
 
                 error = true;
             }

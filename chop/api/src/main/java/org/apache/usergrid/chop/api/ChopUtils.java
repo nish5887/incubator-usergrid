@@ -61,7 +61,7 @@ public class ChopUtils {
         System.setProperty( "javax.net.ssl.trustStore", "jssecacerts" );
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger( ChopUtils.class );
+    private static final Logger logger = LoggerFactory.getLogger( ChopUtils.class );
     private static final char[] HEX_DIGITS = "0123456789abcdef".toCharArray();
     private static final Set<String> trustedHosts = new HashSet<String>();
     private static final Object lock = new Object();
@@ -148,7 +148,7 @@ public class ChopUtils {
 
         certStore = file;
 
-        LOG.debug( "Loading KeyStore {}", file );
+        logger.debug("Loading KeyStore {}", file);
 
         InputStream in = new FileInputStream( file );
         KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
@@ -160,7 +160,7 @@ public class ChopUtils {
 
         for ( String hostname : hostnames ) {
             ks.setCertificateEntry( hostname, cert );
-            LOG.debug( "Added certificate to keystore 'jssecacerts' using alias '" + hostname + "'" );
+            logger.debug("Added certificate to keystore 'jssecacerts' using alias '" + hostname + "'");
         }
 
         OutputStream out = new FileOutputStream( "jssecacerts" );
@@ -217,7 +217,7 @@ public class ChopUtils {
 
         certStore = file;
 
-        LOG.debug( "Loading KeyStore {}", file );
+        logger.debug("Loading KeyStore {}", file);
         InputStream in = new FileInputStream( file );
         KeyStore ks = KeyStore.getInstance( KeyStore.getDefaultType() );
         ks.load( in, passphrase );
@@ -238,7 +238,7 @@ public class ChopUtils {
         ConnectException connectException = null;
         do {
             try {
-                LOG.info( "Opening connection to {}:{}", host, port );
+                logger.info("Opening connection to {}:{}", host, port);
                 socket = ( SSLSocket ) factory.createSocket( host, port );
                 socket.setSoTimeout( 10000 );
                 success = true;
@@ -255,32 +255,32 @@ public class ChopUtils {
         }
 
         try {
-            LOG.debug( "Starting SSL handshake..." );
+            logger.debug("Starting SSL handshake...");
             socket.startHandshake();
             socket.close();
-            LOG.debug( "No errors, certificate is already trusted" );
+            logger.debug("No errors, certificate is already trusted");
         }
         catch ( SSLException e ) {
-            LOG.debug( "Cert is NOT trusted: {}", e.getMessage() );
+            logger.debug("Cert is NOT trusted: {}", e.getMessage());
         }
 
         X509Certificate[] chain = tm.chain;
         if ( chain == null ) {
-            LOG.warn( "Could not obtain server certificate chain" );
+            logger.warn("Could not obtain server certificate chain");
             return;
         }
 
-        LOG.debug( "Server sent " + chain.length + " certificate(s):" );
+        logger.debug("Server sent " + chain.length + " certificate(s):");
         MessageDigest sha1 = MessageDigest.getInstance( "SHA1" );
         MessageDigest md5 = MessageDigest.getInstance( "MD5" );
         for ( int i = 0; i < chain.length; i++ ) {
             X509Certificate cert = chain[i];
-            LOG.debug( " " + ( i + 1 ) + " Subject " + cert.getSubjectDN() );
-            LOG.debug( "   Issuer  " + cert.getIssuerDN() );
+            logger.debug(" " + (i + 1) + " Subject " + cert.getSubjectDN());
+            logger.debug("   Issuer  " + cert.getIssuerDN());
             sha1.update( cert.getEncoded() );
-            LOG.debug( "   sha1    " + toHexString( sha1.digest() ) );
+            logger.debug("   sha1    " + toHexString(sha1.digest()));
             md5.update( cert.getEncoded() );
-            LOG.debug( "   md5     " + toHexString( md5.digest() ) );
+            logger.debug("   md5     " + toHexString(md5.digest()));
         }
 
         int k = 0;
@@ -293,8 +293,8 @@ public class ChopUtils {
         ks.store( out, passphrase );
         out.close();
 
-        LOG.debug( "cert = {}", cert );
-        LOG.debug( "Added certificate to keystore 'jssecacerts' using alias '" + host + "'" );
+        logger.debug("cert = {}", cert);
+        logger.debug("Added certificate to keystore 'jssecacerts' using alias '" + host + "'");
     }
 
 

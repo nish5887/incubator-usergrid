@@ -21,7 +21,6 @@ package org.apache.usergrid.persistence.graph.impl.stage;
 
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -60,7 +59,7 @@ import rx.schedulers.Schedulers;
 public class NodeDeleteListenerImpl implements NodeDeleteListener {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger( NodeDeleteListenerImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( NodeDeleteListenerImpl.class );
 
     private final NodeSerialization nodeSerialization;
     private final EdgeSerialization storageSerialization;
@@ -112,7 +111,7 @@ public class NodeDeleteListenerImpl implements NodeDeleteListener {
 
                         final Optional<Long> maxVersion = nodeSerialization.getMaxVersion( scope, node );
 
-                        LOG.debug( "Node with id {} has max version of {}", node, maxVersion.orNull() );
+                        if(logger.isDebugEnabled()) logger.debug("Node with id {} has max version of {}", node, maxVersion.orNull());
 
 
                         if ( !maxVersion.isPresent() ) {
@@ -184,7 +183,7 @@ public class NodeDeleteListenerImpl implements NodeDeleteListener {
                 //buffer and delete marked edges in our buffer size so we're making less trips to cassandra
                 .buffer( graphFig.getScanPageSize() ).flatMap( markedEdges -> {
 
-                    LOG.debug( "Batching {} edges for node {} for deletion", markedEdges.size(), node );
+                if(logger.isDebugEnabled()) logger.debug("Batching {} edges for node {} for deletion", markedEdges.size(), node);
 
                     final MutationBatch batch = keyspace.prepareMutationBatch();
 
@@ -219,14 +218,14 @@ public class NodeDeleteListenerImpl implements NodeDeleteListener {
                     //we want them running on the i/o thread from the Observable emitting all the edges
 
                     //
-                    LOG.debug( "About to audit {} source types", sourceNodes.size() );
+                if(logger.isDebugEnabled()) logger.debug("About to audit {} source types", sourceNodes.size());
 
                     Observable<Integer> sourceMetaCleanup =
                             Observable.from( sourceNodes ).flatMap( targetPair -> edgeMetaRepair
                                     .repairSources( scope, targetPair.id, targetPair.edgeType, maxVersion ) ).last();
 
 
-                    LOG.debug( "About to audit {} target types", targetNodes.size() );
+                if(logger.isDebugEnabled()) logger.debug("About to audit {} target types", targetNodes.size());
 
                     Observable<Integer> targetMetaCleanup =
                             Observable.from( targetNodes ).flatMap( targetPair -> edgeMetaRepair

@@ -34,7 +34,7 @@ import org.apache.usergrid.batch.service.JobListener;
 public class TestJobListener implements JobListener {
     // public static final long WAIT_MAX_MILLIS = 250;
     public static final long WAIT_MAX_MILLIS = 60000L; // max wait 1 minutes
-    private static final Logger LOG = LoggerFactory.getLogger( TestJobListener.class );
+    private static final Logger logger = LoggerFactory.getLogger( TestJobListener.class );
     private AtomicInteger submittedCounter = new AtomicInteger();
     private AtomicInteger failureCounter = new AtomicInteger();
     private AtomicInteger successCounter = new AtomicInteger();
@@ -67,19 +67,19 @@ public class TestJobListener implements JobListener {
 
 
     public void onSubmit( JobExecution execution ) {
-        LOG.debug( "Job execution {} submitted with count {}.", execution, submittedCounter.incrementAndGet() );
+        logger.debug("Job execution {} submitted with count {}.", execution, submittedCounter.incrementAndGet());
     }
 
 
     public void onSuccess( JobExecution execution ) {
-        LOG.debug( "Job execution {} succeeded with count {}.", execution, successCounter.incrementAndGet() );
+        logger.debug("Job execution {} succeeded with count {}.", execution, successCounter.incrementAndGet());
 
         latch.countDown();
     }
 
 
     public void onFailure( JobExecution execution ) {
-        LOG.debug( "Job execution {} failed with count {}.", execution, failureCounter.incrementAndGet() );
+        logger.debug("Job execution {} failed with count {}.", execution, failureCounter.incrementAndGet());
 
         latch.countDown();
     }

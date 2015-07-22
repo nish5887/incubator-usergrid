@@ -22,11 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.apache.usergrid.persistence.EntityManager;
+
 import org.apache.usergrid.services.ServicePayload;
 import org.apache.usergrid.services.notifications.apns.APNsAdapter;
 import org.apache.usergrid.services.notifications.apns.APNsNotification;
@@ -36,7 +34,7 @@ import org.apache.usergrid.services.notifications.apns.APNsNotification;
  */
 public class TestAdapter implements ProviderAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(TestAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(TestAdapter.class);
     private static final int DELAY = 1; // if delay > 0, uses threadpool
     private final Notifier notifier;
 
@@ -56,7 +54,7 @@ public class TestAdapter implements ProviderAdapter {
 
     @Override
     public void sendNotification(
-            String providerId, 
+            String providerId,
             final Object payload,
             Notification notification,
             TaskTracker tracker)
@@ -75,9 +73,9 @@ public class TestAdapter implements ProviderAdapter {
 //                    try {
 //                        Thread.sleep(DELAY);
 //                        apnsNotification.messageSent();
-//                        log.debug("messageSent() - " + payload.toString());
+//                        logger.debug("messageSent() - " + payload.toString());
 //                    } catch (Exception e) {
-//                        log.error("messageSent() returned error", e);
+//                        logger.error("messageSent() returned error", e);
 //                    }
 //                }
 //            });
@@ -86,12 +84,12 @@ public class TestAdapter implements ProviderAdapter {
 
     @Override
     public void doneSendingNotifications() throws Exception {
-        log.debug("doneSendingNotifications()");
+        if(logger.isDebugEnabled()) logger.debug("doneSendingNotifications()");
     }
 
     @Override
     public void removeInactiveDevices() throws Exception {
-        log.debug("getInactiveDevices()");
+        if(logger.isDebugEnabled()) logger.debug("getInactiveDevices()");
     }
 
     @Override

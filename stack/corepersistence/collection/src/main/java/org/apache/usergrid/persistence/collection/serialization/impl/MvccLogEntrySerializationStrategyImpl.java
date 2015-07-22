@@ -60,7 +60,7 @@ import com.netflix.astyanax.serializers.AbstractSerializer;
  */
 public abstract class MvccLogEntrySerializationStrategyImpl<K> implements MvccLogEntrySerializationStrategy {
 
-    private static final Logger LOG = LoggerFactory.getLogger( MvccLogEntrySerializationStrategyImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( MvccLogEntrySerializationStrategyImpl.class );
 
     private static final StageSerializer SER = new StageSerializer();
 
@@ -140,6 +140,7 @@ public abstract class MvccLogEntrySerializationStrategyImpl<K> implements MvccLo
                                           .iterator();
         }
         catch ( ConnectionException e ) {
+            logger.error("ConnectionException in MvccLogEntrySerializationStrategyImpl.load()", e);
             throw new CollectionRuntimeException( null, collectionScope, "An error occurred connecting to cassandra",
                 e );
         }
@@ -199,6 +200,7 @@ public abstract class MvccLogEntrySerializationStrategyImpl<K> implements MvccLo
                         .execute().getResult();
         }
         catch ( ConnectionException e ) {
+            logger.error("ConnectionException in load", e);
             throw new RuntimeException( "Unable to load log entries", e );
         }
 
@@ -221,6 +223,7 @@ public abstract class MvccLogEntrySerializationStrategyImpl<K> implements MvccLo
                               .withColumnRange( minVersion, null, true, maxSize ).execute().getResult();
         }
         catch ( ConnectionException e ) {
+            logger.error("ConnectionException in loadReversed", e);
             throw new RuntimeException( "Unable to load log entries", e );
         }
 
@@ -277,7 +280,7 @@ public abstract class MvccLogEntrySerializationStrategyImpl<K> implements MvccLo
 
         final long timestamp = version.timestamp();
 
-        LOG.debug( "Writing version with timestamp '{}'", timestamp );
+        if(logger.isDebugEnabled()) logger.debug("Writing version with timestamp '{}'", timestamp);
 
         final Id applicationId = collectionScope.getApplication();
 

@@ -98,7 +98,7 @@ public class MarkStart implements Func1<CollectionIoEvent<Id>, CollectionIoEvent
             write.execute();
         }
         catch ( ConnectionException e ) {
-            LOG.error( "Failed to execute write asynchronously ", e );
+            LOG.error( "ConnectionException, Failed to execute write asynchronously ", e );
             throw new CollectionRuntimeException( null, applicationScope,
                     "Failed to execute write asynchronously ", e );
         }

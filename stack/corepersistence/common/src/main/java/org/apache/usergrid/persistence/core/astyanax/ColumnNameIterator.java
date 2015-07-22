@@ -108,6 +108,7 @@ public class ColumnNameIterator<C, T> implements Iterable<T>, Iterator<T> {
             sourceIterator = rowQuery.execute().getResult().iterator();
         }
         catch ( ConnectionException e ) {
+
             throw new RuntimeException( "Unable to get next page", e );
         }
     }

@@ -47,7 +47,7 @@ import static org.junit.Assert.assertEquals;
 
 
 public class LargeEntityIT extends AbstractCoreIT {
-    private static final Logger LOG = LoggerFactory.getLogger( LargeEntityIT.class );
+    private static final Logger logger = LoggerFactory.getLogger( LargeEntityIT.class );
 
     @Rule
     public Application app = new CoreApplication( setup );
@@ -82,7 +82,7 @@ public class LargeEntityIT extends AbstractCoreIT {
     @Test
     public void testLargeEntityCrud() throws Exception {
 
-        LOG.debug( "testLargeEntityCrud" );
+        logger.debug("testLargeEntityCrud");
 
         SetConfigTestBypass.setValueByPass( serializationFig, "getMaxEntitySize", 641834 + "" );
 

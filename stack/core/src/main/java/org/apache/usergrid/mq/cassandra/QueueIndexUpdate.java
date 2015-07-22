@@ -33,6 +33,8 @@ import com.fasterxml.uuid.UUIDComparator;
 
 import me.prettyprint.hector.api.beans.DynamicComposite;
 import me.prettyprint.hector.api.mutation.Mutator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static java.nio.ByteBuffer.wrap;
 
@@ -41,6 +43,8 @@ import static org.apache.usergrid.utils.UUIDUtils.getTimestampInMicros;
 
 
 public class QueueIndexUpdate {
+
+    public static final Logger logger = LoggerFactory.getLogger(QueueIndexUpdate.class);
 
     public static final byte VALUE_CODE_BYTES = 0;
     public static final byte VALUE_CODE_UTF8 = 1;
@@ -281,6 +285,7 @@ public class QueueIndexUpdate {
                     return wrap( json.binaryValue());
                 }
                 catch ( IOException e ) {
+                    logger.error("IO Exception making indexableObject",e);
                 }
             }
         }

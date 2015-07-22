@@ -115,6 +115,7 @@ public class VersionCompact
                             mutationBatch.execute();
                         }
                         catch ( ConnectionException e ) {
+                            logger.error("ConnectionException in Version Compaction", e);
                             throw new RuntimeException( "Unable to perform batch mutation" );
                         }
                 } ).flatMap( batches -> Observable.from( buffer ) ) );

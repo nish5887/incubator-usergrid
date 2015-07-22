@@ -298,7 +298,7 @@ public class ManagementServiceImpl implements ManagementService {
                 try {
                     createApplication( organization.getUuid(), test_app_name );
                 }catch(ApplicationAlreadyExistsException aaee){
-                    logger.debug("The database setup already found an existing application");
+                    logger.warn("The database setup already found an existing application");
                 }
             }
         }
@@ -355,7 +355,7 @@ public class ManagementServiceImpl implements ManagementService {
             try {
                 createAdminUser( username, "Super User", email, password, true, false );
             }catch(Exception e){
-
+                logger.error("Error resetting super user", e);
             }
         }
         else {

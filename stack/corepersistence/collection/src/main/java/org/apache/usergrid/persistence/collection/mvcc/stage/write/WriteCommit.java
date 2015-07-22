@@ -58,7 +58,7 @@ import rx.functions.Func1;
 @Singleton
 public class WriteCommit implements Func1<CollectionIoEvent<MvccEntity>, Entity> {
 
-    private static final Logger LOG = LoggerFactory.getLogger( WriteCommit.class );
+    private static final Logger logger = LoggerFactory.getLogger( WriteCommit.class );
 
     @Inject
     private UniqueValueSerializationStrategy uniqueValueStrat;
@@ -117,7 +117,8 @@ public class WriteCommit implements Func1<CollectionIoEvent<MvccEntity>, Entity>
 
                 MutationBatch mb = uniqueValueStrat.write(applicationScope,  written );
 
-                LOG.debug("Finalizing {} unqiue value {}", field.getName(), field.getValue().toString());
+            if (logger.isDebugEnabled())
+                logger.debug("Finalizing {} unqiue value {}", field.getName(), field.getValue().toString());
 
                 // merge into our existing mutation batch
                 logMutation.mergeShallow( mb );
@@ -128,7 +129,7 @@ public class WriteCommit implements Func1<CollectionIoEvent<MvccEntity>, Entity>
             logMutation.execute();
         }
         catch ( ConnectionException e ) {
-            LOG.error( "Failed to execute write asynchronously ", e );
+            logger.error("Failed to execute writeCommit asynchronously ", e);
             throw new WriteCommitException( mvccEntity, applicationScope,
                 "Failed to execute write asynchronously ", e );
         }

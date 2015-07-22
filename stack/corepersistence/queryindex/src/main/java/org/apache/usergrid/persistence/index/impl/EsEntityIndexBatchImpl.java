@@ -35,7 +35,7 @@ import rx.Observable;
 
 public class EsEntityIndexBatchImpl implements EntityIndexBatch {
 
-    private static final Logger log = LoggerFactory.getLogger( EsEntityIndexBatchImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( EsEntityIndexBatchImpl.class );
 
 
     private final IndexAlias alias;
@@ -72,8 +72,8 @@ public class EsEntityIndexBatchImpl implements EntityIndexBatch {
 
         final String writeAlias = alias.getWriteAlias();
 
-        if ( log.isDebugEnabled() ) {
-            log.debug( "Indexing to alias {} with scope {} on edge {} with entity data {}",
+        if ( logger.isDebugEnabled() ) {
+            logger.debug( "Indexing to alias {} with scope {} on edge {} with entity data {}",
                     new Object[] { writeAlias, applicationScope, indexEdge, entity } );
         }
 
@@ -96,8 +96,8 @@ public class EsEntityIndexBatchImpl implements EntityIndexBatch {
            throw new IllegalStateException("No indexes exist for " + indexLocationStrategy.getAlias().getWriteAlias());
         }
 
-        if ( log.isDebugEnabled() ) {
-            log.debug( "Deindexing to indexes {} with scope {} on edge {} with id {} and version {} ",
+        if ( logger.isDebugEnabled() ) {
+            logger.debug( "Deindexing to indexes {} with scope {} on edge {} with id {} and version {} ",
                     new Object[] { indexes, applicationScope, searchEdge, id, version } );
         }
 

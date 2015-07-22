@@ -59,11 +59,11 @@ public class OAuth2AccessTokenSecurityFilter extends SecurityFilter {
 
     public static final String REALM = "Usergrid Authentication";
 
-    private static final Logger LOG = LoggerFactory.getLogger( OAuth2AccessTokenSecurityFilter.class );
+    private static final Logger logger = LoggerFactory.getLogger( OAuth2AccessTokenSecurityFilter.class );
 
 
     public OAuth2AccessTokenSecurityFilter() {
-        LOG.info( "OAuth2AccessTokenSecurityFilter is installed" );
+        logger.info("OAuth2AccessTokenSecurityFilter is installed");
     }
 
 
@@ -112,11 +112,8 @@ public class OAuth2AccessTokenSecurityFilter extends SecurityFilter {
                     throw mappableSecurityException( BAD_ACCESS_TOKEN_ERROR );
                 }
                 catch ( Exception e ) {
-                    if ( LOG.isDebugEnabled() ) {
-                        LOG.debug( "Unable to verify OAuth token: " + accessToken, e );
-                    } else {
-                        LOG.warn( "Unable to verify OAuth token" );
-                    }
+
+                    logger.warn( "Unable to verify OAuth token: " + accessToken, e );
                     throw mappableSecurityException( UNVERIFIED_OAUTH_ERROR );
                 }
 
@@ -136,7 +133,7 @@ public class OAuth2AccessTokenSecurityFilter extends SecurityFilter {
                         throw new MappableContainerException( e );
                     }
                     catch ( Exception e ) {
-                        LOG.error( "failed to get admin user info from access token", e );
+                        logger.error("failed to get admin user info from access token", e);
                     }
                     if ( user == null ) {
                         throw mappableSecurityException( BAD_ACCESS_TOKEN_ERROR );
@@ -155,7 +152,7 @@ public class OAuth2AccessTokenSecurityFilter extends SecurityFilter {
                         throw new MappableContainerException( e );
                     }
                     catch ( Exception e ) {
-                        LOG.error( "failed to get app user from access token", e );
+                        logger.error("failed to get app user from access token", e);
                     }
                     if ( user == null ) {
                         throw mappableSecurityException( BAD_ACCESS_TOKEN_ERROR );
@@ -173,7 +170,7 @@ public class OAuth2AccessTokenSecurityFilter extends SecurityFilter {
                         throw new MappableContainerException( e );
                     }
                     catch ( Exception e ) {
-                        LOG.error( "failed to get organization info from access token", e );
+                        logger.error("failed to get organization info from access token", e);
                     }
                     if ( organization == null ) {
                         throw mappableSecurityException( BAD_ACCESS_TOKEN_ERROR );
@@ -192,7 +189,7 @@ public class OAuth2AccessTokenSecurityFilter extends SecurityFilter {
                         throw new MappableContainerException( e );
                     }
                     catch ( Exception e ) {
-                        LOG.error( "failed to get application info from access token", e );
+                        logger.error("failed to get application info from access token", e);
                     }
                     if ( application == null ) {
                         throw mappableSecurityException( BAD_ACCESS_TOKEN_ERROR );

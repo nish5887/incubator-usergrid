@@ -37,7 +37,7 @@ import static org.junit.Assert.assertNotNull;
 
 
 public class GeoIT extends AbstractCoreIT {
-    private static final Logger LOG = LoggerFactory.getLogger(GeoIT.class);
+    private static final Logger logger = LoggerFactory.getLogger(GeoIT.class);
 
     int NEARBY_RADIUS = 10000;
     int CIRCUMFERENCE_OF_THE_EARTH = 40000000;
@@ -123,7 +123,7 @@ public class GeoIT extends AbstractCoreIT {
      */
     @Test
     public void testMovingTarget() throws Exception {
-        LOG.info("GeoIT.testMovingTarget");
+        logger.info("GeoIT.testMovingTarget");
         //Get the EntityManager instance
         EntityManager em = app.getEntityManager();
         assertNotNull(em);
@@ -232,7 +232,7 @@ public class GeoIT extends AbstractCoreIT {
         for (Map<String, Object> location : LOCATION_PROPERTIES) {
             Entity entity = em.create("store", location);
             assertNotNull(entity);
-            LOG.debug("Entity {} created", entity.getProperty("name"));
+            logger.debug("Entity {} created", entity.getProperty("name"));
         }
         app.refreshIndex();
         //2. validate the size of the result
@@ -292,7 +292,7 @@ public class GeoIT extends AbstractCoreIT {
      *    circumference of the earth
      */
     public void testGeoFromNearbyLocation() throws Exception {
-        LOG.info( "GeoIT.testGeoFromNearbyLocation" );
+        logger.info("GeoIT.testGeoFromNearbyLocation");
         //1. create entities with geo
         EntityManager em = loadGeolocationTestEntities();
 
@@ -329,7 +329,7 @@ public class GeoIT extends AbstractCoreIT {
      */
     @Test
     public void testGeoFromMultipleLocations() throws Exception {
-        LOG.info("GeoIT.testGeoFromMultipleLocations");
+        logger.info("GeoIT.testGeoFromMultipleLocations");
         //1 Create entities with geo
         EntityManager em = loadGeolocationTestEntities();
         //2 Create a list of points from different geographic areas
@@ -642,7 +642,7 @@ public class GeoIT extends AbstractCoreIT {
 
         long endTime = System.currentTimeMillis();
 
-        LOG.info("Runtime took {} milliseconds to search", endTime - startTime);
+        logger.info("Runtime took {} milliseconds to search", endTime - startTime);
     }
 
 
@@ -654,14 +654,14 @@ public class GeoIT extends AbstractCoreIT {
      * 4. return the entity manager
      */
     private EntityManager loadGeolocationTestEntities() throws Exception {
-        LOG.info("GeoIT.loadGeolocationTestEntities");
+        logger.info("GeoIT.loadGeolocationTestEntities");
         //1. Get an instance of the entity manager
 
         EntityManager em = app.getEntityManager();
         assertNotNull(em);
         //2. load test entities
         for (Map<String, Object> location : LOCATION_PROPERTIES) {
-            LOG.info("Create entity with location '{}'", location.get("name"));
+            logger.info("Create entity with location '{}'", location.get("name"));
             Entity entity = em.create("store", location);
             assertNotNull(entity);
         }

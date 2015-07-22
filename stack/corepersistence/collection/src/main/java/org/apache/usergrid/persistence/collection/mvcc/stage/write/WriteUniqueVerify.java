@@ -62,7 +62,7 @@ import rx.functions.Action1;
 @Singleton
 public class WriteUniqueVerify implements Action1<CollectionIoEvent<MvccEntity>> {
 
-    private static final Logger LOG = LoggerFactory.getLogger( WriteUniqueVerify.class );
+    private static final Logger logger = LoggerFactory.getLogger( WriteUniqueVerify.class );
 
     private final UniqueValueSerializationStrategy uniqueValueStrat;
 
@@ -131,6 +131,7 @@ public class WriteUniqueVerify implements Action1<CollectionIoEvent<MvccEntity>>
             batch.execute();
         }
         catch ( ConnectionException ex ) {
+            logger.error("ConnectionException in WriteUniqueVerify", ex);
             throw new RuntimeException( "Unable to write to cassandra", ex );
         }
 
@@ -186,6 +187,7 @@ public class WriteUniqueVerify implements Action1<CollectionIoEvent<MvccEntity>>
                 uniqueValues = uniqueValueSerializationStrategy.load( scope, consistencyLevel, type,  uniqueFields );
             }
             catch ( ConnectionException e ) {
+                logger.error("ConnectionException in WriteUniqueVerify", e);
                 throw new RuntimeException( "Unable to read from cassandra", e );
             }
 

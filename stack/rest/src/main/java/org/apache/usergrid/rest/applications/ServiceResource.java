@@ -90,7 +90,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 })
 public class ServiceResource extends AbstractContextResource {
 
-    protected static final Logger LOG = LoggerFactory.getLogger( ServiceResource.class );
+    protected static final Logger logger = LoggerFactory.getLogger( ServiceResource.class );
     private static final String FILE_FIELD_NAME = "file";
 
 
@@ -185,7 +185,7 @@ public class ServiceResource extends AbstractContextResource {
 
     @Path("file")
     public AbstractContextResource getFileResource( @Context UriInfo ui ) throws Exception {
-        LOG.debug( "in assets in ServiceResource" );
+        if(logger.isDebugEnabled()) logger.debug("in assets in ServiceResource");
         ServiceParameter.addParameter( getServiceParameters(), "assets" );
 
         PathSegment ps = getFirstPathSegment( "assets" );
@@ -201,7 +201,7 @@ public class ServiceResource extends AbstractContextResource {
     public AbstractContextResource addIdParameter( @Context UriInfo ui, @PathParam("entityId") PathSegment entityId )
             throws Exception {
 
-        LOG.debug( "ServiceResource.addIdParameter" );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.addIdParameter" );
 
         UUID itemId = UUID.fromString( entityId.getPath() );
 
@@ -217,9 +217,8 @@ public class ServiceResource extends AbstractContextResource {
     public AbstractContextResource addNameParameter( @Context UriInfo ui, @PathParam("itemName") PathSegment itemName )
             throws Exception {
 
-        LOG.debug( "ServiceResource.addNameParameter" );
-
-        LOG.debug( "Current segment is {}", itemName.getPath() );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.addNameParameter" );
+        if(logger.isDebugEnabled()) logger.debug( "Current segment is {}", itemName.getPath() );
 
         if ( itemName.getPath().startsWith( "{" ) ) {
             Query query = Query.fromJsonString( itemName.getPath() );
@@ -240,7 +239,7 @@ public class ServiceResource extends AbstractContextResource {
     public ServiceResults executeServiceRequest( UriInfo ui, ApiResponse response, ServiceAction action,
                                                  ServicePayload payload ) throws Exception {
 
-        LOG.debug( "ServiceResource.executeServiceRequest" );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.executeServiceRequest" );
 
         boolean tree = "true".equalsIgnoreCase( ui.getQueryParameters().getFirst( "tree" ) );
         boolean collectionGet = false;
@@ -289,7 +288,7 @@ public class ServiceResource extends AbstractContextResource {
                                        @QueryParam("callback") @DefaultValue("callback") String callback )
             throws Exception {
 
-        LOG.debug( "ServiceResource.executeGet" );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.executeGet" );
 
         ApiResponse response = createApiResponse();
 
@@ -338,7 +337,7 @@ public class ServiceResource extends AbstractContextResource {
     public JSONWithPadding executePostWithObject( @Context UriInfo ui, Object json,
             @QueryParam("callback") @DefaultValue("callback") String callback ) throws Exception {
 
-        LOG.debug( "ServiceResource.executePostWithMap" );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.executePostWithMap" );
 
         ApiResponse response = createApiResponse();
 
@@ -383,7 +382,7 @@ public class ServiceResource extends AbstractContextResource {
     public JSONWithPadding executePost( @Context UriInfo ui, String body,
             @QueryParam("callback") @DefaultValue("callback") String callback ) throws Exception {
 
-        LOG.debug( "ServiceResource.executePost: body = " + body );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.executePost: body = " + body );
 
         Object json;
         if ( StringUtils.isEmpty( body ) ) {
@@ -415,7 +414,7 @@ public class ServiceResource extends AbstractContextResource {
                                        @QueryParam("callback") @DefaultValue("callback") String callback )
             throws Exception {
 
-        LOG.debug( "ServiceResource.executePut" );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.executePut" );
 
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> json = mapper.readValue( body, mapTypeReference );
@@ -432,7 +431,7 @@ public class ServiceResource extends AbstractContextResource {
         @QueryParam("app_delete_confirm") String confirmAppDelete )
         throws Exception {
 
-        LOG.debug( "ServiceResource.executeDelete" );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.executeDelete" );
 
         ApiResponse response = createApiResponse();
         response.setAction( "delete" );
@@ -542,7 +541,7 @@ public class ServiceResource extends AbstractContextResource {
                                                  @QueryParam("callback") @DefaultValue("callback") String callback,
                                                  FormDataMultiPart multiPart ) throws Exception {
 
-        LOG.debug( "ServiceResource.executeMultiPartPost" );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.executeMultiPartPost" );
         return executeMultiPart( ui, callback, multiPart, ServiceAction.POST );
     }
 
@@ -554,7 +553,7 @@ public class ServiceResource extends AbstractContextResource {
                                                 @QueryParam("callback") @DefaultValue("callback") String callback,
                                                 FormDataMultiPart multiPart ) throws Exception {
 
-        LOG.debug( "ServiceResource.executeMultiPartPut" );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.executeMultiPartPut" );
         return executeMultiPart( ui, callback, multiPart, ServiceAction.PUT );
     }
 
@@ -571,7 +570,7 @@ public class ServiceResource extends AbstractContextResource {
                 data.put( bodyPart.getName(), bodyPart.getValue() );
             }
             else {
-                LOG.info( "skipping bodyPart {} of media type {}", bodyPart.getName(), bodyPart.getMediaType() );
+                logger.info( "skipping bodyPart {} of media type {}", bodyPart.getName(), bodyPart.getMediaType() );
             }
         }
 
@@ -640,7 +639,7 @@ public class ServiceResource extends AbstractContextResource {
                                       @HeaderParam("range") String rangeHeader,
                                       @HeaderParam("if-modified-since") String modifiedSince ) throws Exception {
 
-        LOG.debug( "ServiceResource.executeStreamGet" );
+        if(logger.isDebugEnabled()) logger.debug( "ServiceResource.executeStreamGet" );
 
         ApiResponse response = createApiResponse();
         response.setAction( "get" );
@@ -649,7 +648,7 @@ public class ServiceResource extends AbstractContextResource {
         ServiceResults serviceResults = executeServiceRequest( ui, response, ServiceAction.GET, null );
         Entity entity = serviceResults.getEntity();
 
-        LOG.info( "In ServiceResource.executeStreamGet with id: {}, range: {}, modifiedSince: {}",
+        logger.info( "In ServiceResource.executeStreamGet with id: {}, range: {}, modifiedSince: {}",
                 new Object[] { entityId, rangeHeader, modifiedSince } );
 
         Map<String, Object> fileMetadata = AssetUtils.getFileMetadata( entity );

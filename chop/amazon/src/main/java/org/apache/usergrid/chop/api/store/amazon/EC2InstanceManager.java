@@ -57,7 +57,7 @@ import com.google.inject.Inject;
 /** Implements all InstanceManager functionality for AmazonAWS  */
 public class EC2InstanceManager implements InstanceManager {
 
-    private static Logger LOG = LoggerFactory.getLogger( EC2InstanceManager.class );
+    private static Logger logger = LoggerFactory.getLogger( EC2InstanceManager.class );
 
     private static final long SLEEP_LENGTH = 3000;
 
@@ -138,11 +138,11 @@ public class EC2InstanceManager implements InstanceManager {
             runInstancesResult = client.runInstances( runInstancesRequest );
         }
         catch ( Exception e ) {
-            LOG.error( "Error while launching cluster instances.", e );
+            logger.error("Error while launching cluster instances.", e);
             return new EC2LaunchResult( cluster.getInstanceSpec(), Collections.EMPTY_LIST );
         }
 
-        LOG.info( "Created instances, setting the names now..." );
+        logger.info("Created instances, setting the names now...");
 
         List<String> instanceIds = new ArrayList<String>( cluster.getSize() );
 
@@ -153,7 +153,7 @@ public class EC2InstanceManager implements InstanceManager {
 
             try {
                 instanceIds.add( i, instance.getInstanceId() );
-                LOG.debug( "Setting name of cluster instance with id: {}", instanceIds.get( i ) );
+                logger.debug("Setting name of cluster instance with id: {}", instanceIds.get(i));
 
                 List<Tag> tags = new ArrayList<Tag>();
 
@@ -168,19 +168,19 @@ public class EC2InstanceManager implements InstanceManager {
                 client.createTags( ctr );
             }
             catch ( Exception e ) {
-                LOG.warn( "Error while setting names", e );
+                logger.warn("Error while setting names", e);
             }
             i++;
         }
 
-        LOG.info( "Names of the instances are set" );
+        logger.info("Names of the instances are set");
 
         if ( timeout > SLEEP_LENGTH ) {
-            LOG.info( "Waiting for maximum {} msec until all instances are running", timeout );
+            logger.info("Waiting for maximum {} msec until all instances are running", timeout);
             boolean stateCheck = waitUntil( instanceIds, InstanceState.Running, timeout );
 
             if ( ! stateCheck ) {
-                LOG.warn( "Waiting for instances to get into Running state has timed out" );
+                logger.warn("Waiting for instances to get into Running state has timed out");
             }
         }
 
@@ -222,11 +222,11 @@ public class EC2InstanceManager implements InstanceManager {
             runInstancesResult = client.runInstances( runInstancesRequest );
         }
         catch ( Exception e ) {
-            LOG.error( "Error while launching runner instances.", e );
+            logger.error("Error while launching runner instances.", e);
             return new EC2LaunchResult( spec, Collections.EMPTY_LIST );
         }
 
-        LOG.info( "Created instances, setting the names now..." );
+        logger.info("Created instances, setting the names now...");
 
         List<String> instanceIds = new ArrayList<String>( stack.getRunnerCount() );
         String runnerNames = getRunnerName( stack );
@@ -236,7 +236,7 @@ public class EC2InstanceManager implements InstanceManager {
 
             try {
                 instanceIds.add( i, instance.getInstanceId() );
-                LOG.debug( "Setting name of runner instance with id: {}", instanceIds.get( i ) );
+                logger.debug("Setting name of runner instance with id: {}", instanceIds.get(i));
 
                 List<Tag> tags = new ArrayList<Tag>();
 
@@ -251,19 +251,19 @@ public class EC2InstanceManager implements InstanceManager {
                 client.createTags( ctr );
             }
             catch ( Exception e ) {
-                LOG.warn( "Error while setting names", e );
+                logger.warn("Error while setting names", e);
             }
             i++;
         }
 
-        LOG.info( "Names of the instances are set" );
+        logger.info("Names of the instances are set");
 
         if ( timeout > SLEEP_LENGTH ) {
-            LOG.info( "Waiting for maximum {} msec until all instances are running", timeout );
+            logger.info("Waiting for maximum {} msec until all instances are running", timeout);
             boolean stateCheck = waitUntil( instanceIds, InstanceState.Running, timeout );
 
             if ( ! stateCheck ) {
-                LOG.warn( "Waiting for instances to get into Running state has timed out" );
+                logger.warn("Waiting for instances to get into Running state has timed out");
             }
         }
 
@@ -348,7 +348,7 @@ public class EC2InstanceManager implements InstanceManager {
             result = client.describeInstances( request );
         }
         catch ( Exception e ) {
-            LOG.error( "Error while getting instance information from AWS.", e );
+            logger.error("Error while getting instance information from AWS.", e);
             return Collections.EMPTY_LIST;
         }
 
@@ -384,7 +384,7 @@ public class EC2InstanceManager implements InstanceManager {
             result = client.describeInstances( request );
         }
         catch ( Exception e ) {
-            LOG.error( "Error while getting instance information from AWS.", e );
+            logger.error("Error while getting instance information from AWS.", e);
             return Collections.EMPTY_LIST;
         }
 
@@ -470,7 +470,7 @@ public class EC2InstanceManager implements InstanceManager {
             for ( com.amazonaws.services.ec2.model.Instance in : reservation.getInstances() ) {
 
                 stateStr = in.getState().getName();
-                LOG.info( "{} is {}", in.getInstanceId(), in.getState().getName() );
+                logger.info("{} is {}", in.getInstanceId(), in.getState().getName());
 
 
                 /** If expected state is ShuttingDown, also accept the Terminated ones */
@@ -515,7 +515,7 @@ public class EC2InstanceManager implements InstanceManager {
                 Thread.sleep( SLEEP_LENGTH );
             }
             catch ( InterruptedException e ) {
-                LOG.warn( "Thread interrupted while sleeping", e );
+                logger.warn("Thread interrupted while sleeping", e);
             }
         }
         while ( timePassed < timeout && instanceIdCopy.size() > 0 );

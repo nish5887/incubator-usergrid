@@ -73,7 +73,7 @@ public class ServiceResults extends Results {
         }
         this.serviceMetadata = serviceMetadata;
         this.nextRequests = nextRequests;
-        logger.debug( "Child path: {}", childPath );
+        if(logger.isDebugEnabled()) logger.debug( "Child path: {}", childPath );
     }
 
 
@@ -93,7 +93,7 @@ public class ServiceResults extends Results {
         }
         this.serviceMetadata = serviceMetadata;
         this.nextRequests = nextRequests;
-        logger.debug( "Child path: {}", childPath );
+        if(logger.isDebugEnabled()) logger.debug( "Child path: {}", childPath );
     }
 
 

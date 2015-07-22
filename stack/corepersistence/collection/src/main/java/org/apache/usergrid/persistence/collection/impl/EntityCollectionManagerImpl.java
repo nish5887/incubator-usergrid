@@ -249,6 +249,7 @@ public class EntityCollectionManagerImpl implements EntityCollectionManager {
                     subscriber.onCompleted();
                 }
                 catch ( Exception e ) {
+                    logger.error("Error in load (Observable)", e);
                     subscriber.onError( e );
                 }
             }
@@ -330,7 +331,7 @@ public class EntityCollectionManagerImpl implements EntityCollectionManager {
                     UniqueValue value = set.getValue( expectedField.getName() );
 
                     if ( value == null ) {
-                        logger.debug( "Field does not correspond to a unique value" );
+                        if(logger.isDebugEnabled()) logger.debug( "Field does not correspond to a unique value" );
                     }
 
                     entityIds.add( value.getEntityId() );
@@ -418,6 +419,7 @@ public class EntityCollectionManagerImpl implements EntityCollectionManager {
                     subscriber.onCompleted();
                 }
                 catch ( Exception e ) {
+                    logger.error("Error in getLatestVersion (Observable)", e);
                     subscriber.onError( e );
                 }
             }

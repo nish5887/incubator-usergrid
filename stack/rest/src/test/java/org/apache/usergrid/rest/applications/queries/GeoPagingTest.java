@@ -47,7 +47,7 @@ import static org.junit.Assert.fail;
  * @since 4.0
  */
 public class GeoPagingTest extends AbstractRestIT {
-  private static Logger log = LoggerFactory.getLogger(GeoPagingTest.class);
+  private static Logger logger = LoggerFactory.getLogger(GeoPagingTest.class);
 
   /**
    * Tests the ability to query groups by location
@@ -87,7 +87,7 @@ public class GeoPagingTest extends AbstractRestIT {
       //retrieve it again from the database
       activity = this.app().collection("groups").entity(activity).get();
       index[i] = (Long) activity.get("created");
-      log.debug("Activity {} created at {}", i, index[i]);
+        if(logger.isDebugEnabled()) logger.debug("Activity {} created at {}", i, index[i]);
 
     }
     this.refreshIndex();

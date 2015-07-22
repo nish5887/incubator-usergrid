@@ -66,7 +66,7 @@ import rx.Observable;
  */
 public class GraphManagerImpl implements GraphManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger( GraphManagerImpl.class );
+    private static final Logger logger = LoggerFactory.getLogger( GraphManagerImpl.class );
 
     private final ApplicationScope scope;
 
@@ -188,7 +188,7 @@ public class GraphManagerImpl implements GraphManager {
             final MutationBatch edgeMutation = storageEdgeSerialization.writeEdge( scope, edge1, timestamp );
 
 
-            LOG.debug( "Marking edge {} as deleted to commit log", edge1 );
+            logger.debug("Marking edge {} as deleted to commit log", edge1);
             try {
                 edgeMutation.execute();
             }
@@ -223,7 +223,7 @@ public class GraphManagerImpl implements GraphManager {
                 //fire our delete listener and wait for the results
                 edgeDeleteListener.receive( scope, marked, startTimestamp ).doOnNext(
                     //log them
-                    count -> LOG.debug( "removed {} types for edge {} ", count, edge ) )
+                    count -> logger.debug( "removed {} types for edge {} ", count, edge ) )
                     //return the marked edge
                     .map( count -> marked ) );
 
@@ -241,7 +241,7 @@ public class GraphManagerImpl implements GraphManager {
             final MutationBatch nodeMutation = nodeSerialization.mark( scope, id, timestamp );
 
 
-            LOG.debug( "Marking node {} as deleted to node mark", node );
+            logger.debug("Marking node {} as deleted to node mark", node);
             try {
                 nodeMutation.execute();
             }
@@ -273,7 +273,7 @@ public class GraphManagerImpl implements GraphManager {
                     //set to 0 if nothing is emitted
                 .lastOrDefault( 0 )
                     //log for posterity
-                .doOnNext( count -> LOG.debug( "Removed {} edges from node {}", count, inputNode ) )
+                .doOnNext( count -> logger.debug( "Removed {} edges from node {}", count, inputNode ) )
                     //return our id
                 .map( count -> inputNode );
 

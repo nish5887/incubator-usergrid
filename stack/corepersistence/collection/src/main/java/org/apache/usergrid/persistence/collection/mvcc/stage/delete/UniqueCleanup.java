@@ -105,7 +105,8 @@ public class UniqueCleanup
                         //TODO: does this emit for every version before the staticComparator?
                         .skipWhile( uniqueValue -> {
 
-                            logger.debug( "Cleaning up version:{} in UniqueCleanup", entityVersion );
+                            if (logger.isDebugEnabled())
+                                logger.debug("Cleaning up version:{} in UniqueCleanup", entityVersion);
                             final UUID uniqueValueVersion = uniqueValue.getEntityVersion();
                             //TODO: should this be equals? That way we clean up the one marked as well
                             return UUIDComparator.staticCompare( uniqueValueVersion, entityVersion ) > 0;
@@ -121,8 +122,9 @@ public class UniqueCleanup
 
 
                             for ( UniqueValue value : uniqueValues ) {
-                                logger
-                                    .debug( "Deleting value:{} from application scope: {} ", value, applicationScope );
+                                if (logger.isDebugEnabled())
+                                    logger
+                                    .debug("Deleting value:{} from application scope: {} ", value, applicationScope);
                                 uniqueCleanupBatch
                                     .mergeShallow( uniqueValueSerializationStrategy.delete( applicationScope, value ) );
                             }
@@ -131,6 +133,7 @@ public class UniqueCleanup
                                 uniqueCleanupBatch.execute();
                             }
                             catch ( ConnectionException e ) {
+                                logger.error("ConnectionException in UniqueCleanup.call", e);
                                 throw new RuntimeException( "Unable to execute batch mutation", e );
                             }
                         } ).lastOrDefault( Collections.emptyList() ).map( list -> mvccEntityCollectionIoEvent );

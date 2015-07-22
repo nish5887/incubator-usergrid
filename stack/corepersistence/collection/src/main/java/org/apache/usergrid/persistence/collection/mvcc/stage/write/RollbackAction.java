@@ -47,7 +47,7 @@ import rx.schedulers.Schedulers;
  */
 public class RollbackAction implements Action1<Throwable> {
 
-    private static final Logger log = LoggerFactory.getLogger( RollbackAction.class );
+    private static final Logger logger = LoggerFactory.getLogger( RollbackAction.class );
 
     private final UniqueValueSerializationStrategy uniqueValueStrat;
     private final MvccLogEntrySerializationStrategy logEntryStrat;
@@ -100,6 +100,7 @@ public class RollbackAction implements Action1<Throwable> {
                         rollbackMb.execute();
                     }
                     catch ( ConnectionException ex ) {
+                        logger.error("ConnectionException in RollbackAction", e);
                         throw new RuntimeException( "Error rolling back changes", ex );
                     }
                 }
