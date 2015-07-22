@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.usergrid.java.client.entities;
+package org.apache.usergrid.java.client.model;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -50,7 +50,7 @@ public class UsergridEntity {
     changeType(type);
   }
 
-  public UsergridEntity(UsergridEntity pet) {
+  public UsergridEntity(UsergridEntity fromCopy) {
 
   }
 
@@ -193,8 +193,10 @@ public class UsergridEntity {
 
   public void save() throws ClientException {
     ApiResponse response = Usergrid.getInstance().updateEntity(this);
+
     //todo error checking on response
     System.out.println(response);
+
     String uuid = response.getFirstEntity().getStringProperty("uuid");
     this.setUuid(UUID.fromString(uuid));
   }
@@ -210,6 +212,11 @@ public class UsergridEntity {
   public String getStringProperty(String name) {
     return JsonUtils.getStringProperty(this.properties, name);
   }
+
+  public <T> T getEntityProperty(String name){
+    return JsonUtils.getProperty(this.properties, name);
+  }
+
 
   public void post() throws ClientException {
     ApiResponse response = Usergrid.getInstance().post(this);

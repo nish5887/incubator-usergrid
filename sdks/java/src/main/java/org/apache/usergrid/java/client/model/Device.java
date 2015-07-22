@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.usergrid.java.client.entities;
+package org.apache.usergrid.java.client.model;
 
 import static com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL;
 import static org.apache.usergrid.java.client.utils.JsonUtils.setStringProperty;
@@ -25,19 +25,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.apache.usergrid.java.client.utils.JsonUtils;
 
-public class Group extends UsergridEntity {
+public class Device extends UsergridEntity {
 
-	public final static String ENTITY_TYPE = "group";
+	public final static String ENTITY_TYPE = "device";
 
-	public final static String PROPERTY_PATH = "path";
-	public final static String PROPERTY_TITLE = "title";
+	public final static String PROPERTY_NAME = "name";
 
-	public Group() {
+	public Device() {
 		super();
 		changeType(ENTITY_TYPE);
 	}
 
-	public Group(UsergridEntity usergridEntity) {
+	public Device(UsergridEntity usergridEntity) {
 		super();
 		properties = usergridEntity.properties;
 		changeType(ENTITY_TYPE);
@@ -53,27 +52,17 @@ public class Group extends UsergridEntity {
 	@JsonIgnore
 	public List<String> getPropertyNames() {
 		List<String> properties = super.getPropertyNames();
-		properties.add(PROPERTY_PATH);
-		properties.add(PROPERTY_TITLE);
+		properties.add(PROPERTY_NAME);
 		return properties;
 	}
 
 	@JsonSerialize(include = NON_NULL)
-	public String getPath() {
-		return JsonUtils.getStringProperty(properties, PROPERTY_PATH);
+	public String getName() {
+		return JsonUtils.getStringProperty(properties, PROPERTY_NAME);
 	}
 
-	public void setPath(String path) {
-		setStringProperty(properties, PROPERTY_PATH, path);
-	}
-
-	@JsonSerialize(include = NON_NULL)
-	public String getTitle() {
-		return JsonUtils.getStringProperty(properties, PROPERTY_TITLE);
-	}
-
-	public void setTitle(String title) {
-		setStringProperty(properties, PROPERTY_TITLE, title);
+	public void setName(String name) {
+		setStringProperty(properties, PROPERTY_NAME, name);
 	}
 
 }

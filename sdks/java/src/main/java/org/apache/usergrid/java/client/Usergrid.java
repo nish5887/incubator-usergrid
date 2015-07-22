@@ -17,7 +17,7 @@
 package org.apache.usergrid.java.client;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import org.apache.usergrid.java.client.entities.*;
+import org.apache.usergrid.java.client.model.*;
 import org.apache.usergrid.java.client.response.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

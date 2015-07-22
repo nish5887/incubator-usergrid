@@ -24,16 +24,11 @@ import static org.apache.usergrid.java.client.utils.UrlUtils.addQueryParams;
 import static org.apache.usergrid.java.client.utils.UrlUtils.encodeParams;
 import static org.apache.usergrid.java.client.utils.UrlUtils.path;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import org.apache.usergrid.java.client.entities.*;
+import org.apache.usergrid.java.client.model.*;
 import org.apache.usergrid.java.client.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -353,6 +348,7 @@ public class Client {
     }
     return response;
   }
+
 
   public void assertValidApplicationId() {
     if (isEmpty(applicationId)) {
@@ -1097,18 +1093,29 @@ public class Client {
   }
 
 
-  public ApiResponse queryConnection(String srcType, String srcID, String label) {
-    return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId, srcType, srcID, label);
+  public ApiResponse queryCollections() {
+    return apiRequest(HttpMethod.GET, null, null, this.organizationId, this.applicationId);
   }
 
+  public ApiResponse queryConnection(String... segments) {
+    String[] paramPath = new String[10];
+    paramPath[0] = this.organizationId;
+    paramPath[1] = this.applicationId;
+    for (int i = 0; i < segments.length; i++) {
+      paramPath[2 + i] = segments[i];
+    }
+    return apiRequest(HttpMethod.GET, null, null, paramPath);
+
+  }
 
   public UsergridEntity getEntity(String s) {
     return null;
   }
 
-  public ApiResponse queryConnectingEdges(String srcType, String srcId, String connecting, String name) {
-    return apiRequest(HttpMethod.GET, null, null, organizationId, applicationId, srcType, srcId, connecting, name);
+  private String convertStringArrayToPath(String[] segments) {
+    return null;
   }
+
 
   public QueryResult query(Query query) {
 

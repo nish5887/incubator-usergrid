@@ -6,6 +6,7 @@ package com.apigee.sdk;
 public class ApiClient {
   private OAuthAuthenticationStrategy authenticationStrategy;
   private HttpCompliantCache cachingStrategy;
+  private CacheConfig foo;
 
   public void setAuthenticationStrategy(OAuthAuthenticationStrategy authenticationStrategy) {
     this.authenticationStrategy = authenticationStrategy;

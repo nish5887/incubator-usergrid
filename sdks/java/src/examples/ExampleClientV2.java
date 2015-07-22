@@ -1,7 +1,7 @@
 import com.apigee.sdk.*;
 import org.apache.usergrid.java.client.Client;
 import org.apache.usergrid.java.client.Usergrid;
-import org.apache.usergrid.java.client.entities.UsergridEntity;
+import org.apache.usergrid.java.client.model.UsergridEntity;
 import org.apache.usergrid.java.client.query.Query;
 //import org.apache.usergrid.java.client.query
 

@@ -30,9 +30,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
-import org.apache.usergrid.java.client.entities.UsergridEntity;
-import org.apache.usergrid.java.client.entities.Message;
-import org.apache.usergrid.java.client.entities.User;
+import org.apache.usergrid.java.client.model.UsergridEntity;
+import org.apache.usergrid.java.client.model.Message;
+import org.apache.usergrid.java.client.model.User;
 
 public class ApiResponse {
 

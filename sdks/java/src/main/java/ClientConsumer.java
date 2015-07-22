@@ -1,4 +1,4 @@
-import org.apache.usergrid.java.client.entities.UsergridEntity;
+import org.apache.usergrid.java.client.model.UsergridEntity;
 
 /**
  * Created by ApigeeCorporation on 6/23/15.
