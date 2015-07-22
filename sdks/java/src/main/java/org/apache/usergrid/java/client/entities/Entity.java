@@ -207,6 +207,11 @@ public class Entity {
     return JsonUtils.getStringProperty(this.properties, name);
   }
 
+  public <T> T getEntityProperty(String name){
+    return JsonUtils.getProperty(this.properties,name);
+  }
+
+
   public void post() throws ClientException {
     ApiResponse response = SingletonClient.getInstance().post(this);
 
@@ -235,10 +240,10 @@ public class Entity {
     // check for one of: name, uuid, error if not found
 
     ApiResponse response = SingletonClient.getInstance().connectEntities(
-        this.getType(),
-        this.getUuid() != null ? this.getUuid().toString() : this.getStringProperty("name"),
-        connectionType,
-        target.getUuid() != null ? target.getUuid().toString() : target.getStringProperty("name"));
+            this.getType(),
+            this.getUuid() != null ? this.getUuid().toString() : this.getStringProperty("name"),
+            connectionType,
+            target.getUuid() != null ? target.getUuid().toString() : target.getStringProperty("name"));
 
     //todo - check to make sure it worked
 

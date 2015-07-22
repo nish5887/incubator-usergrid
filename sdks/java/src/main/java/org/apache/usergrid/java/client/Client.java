@@ -354,6 +354,7 @@ public class Client {
     return response;
   }
 
+
   public void assertValidApplicationId() {
     if (isEmpty(applicationId)) {
       throw new IllegalArgumentException("No application id specified");
