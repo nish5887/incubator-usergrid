@@ -125,7 +125,7 @@ public class Activity extends UsergridEntity {
     protected Set<String> connections;
 
     public Activity() {
-        setType("activity");
+        changeType("activity");
     }
 
     public Activity(UUID id) {

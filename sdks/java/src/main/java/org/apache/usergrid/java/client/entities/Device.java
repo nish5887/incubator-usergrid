@@ -33,13 +33,13 @@ public class Device extends UsergridEntity {
 
 	public Device() {
 		super();
-		setType(ENTITY_TYPE);
+		changeType(ENTITY_TYPE);
 	}
 
 	public Device(UsergridEntity usergridEntity) {
 		super();
 		properties = usergridEntity.properties;
-		setType(ENTITY_TYPE);
+		changeType(ENTITY_TYPE);
 	}
 
 	@Override

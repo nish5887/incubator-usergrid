@@ -26,7 +26,7 @@ public class ClientConsumer {
     // DAO pattern: entity
 //    UsergridEntity e = new UsergridEntity("<uuid>");
 //    e.collection("pets");
-//    e.setType("pets");
+//    e.changeType("pets");
 //    e.setProperty("breed", "terrier");
 //    e.setProperty("color", "black");
 //    e.setProperty("weight", "black");

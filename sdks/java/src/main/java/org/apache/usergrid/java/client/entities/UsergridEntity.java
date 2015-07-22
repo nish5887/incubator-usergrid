@@ -47,7 +47,11 @@ public class UsergridEntity {
   }
 
   public UsergridEntity(String type) {
-    setType(type);
+    changeType(type);
+  }
+
+  public UsergridEntity(UsergridEntity pet) {
+
   }
 
   @JsonIgnore
@@ -67,7 +71,9 @@ public class UsergridEntity {
     return JsonUtils.getStringProperty(properties, PROPERTY_TYPE);
   }
 
-  public void setType(String type) {
+  public void changeType(String type) {
+    // get original type
+    // if different, delete old entity in old collection and create new in new collection
     setStringProperty(properties, PROPERTY_TYPE, type);
   }
 
@@ -242,5 +248,9 @@ public class UsergridEntity {
 
     Connection connection = new Connection(this, connectionType, target);
     return connection;
+  }
+
+  public static UsergridEntity copyOf(UsergridEntity pet) {
+    return null;
   }
 }

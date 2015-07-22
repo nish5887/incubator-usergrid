@@ -3,7 +3,6 @@ import org.apache.usergrid.java.client.Client;
 import org.apache.usergrid.java.client.Usergrid;
 import org.apache.usergrid.java.client.entities.UsergridEntity;
 import org.apache.usergrid.java.client.query.Query;
-import org.apache.usergrid.java.client.response.ApiResponse;
 //import org.apache.usergrid.java.client.query
 
 import java.io.FileInputStream;
@@ -94,28 +93,28 @@ public class ExampleClientV2 {
     Client robert  = Usergrid.getInstance("Robert's App");
 
 
-    UsergridEntity pet = new UsergridEntity("pet");
-    pet.setType("pet");
-    pet.setProperty("name", "max");
-    pet.setProperty("age", 15);
-    pet.setProperty("owner", (String) null);
-    pet.save(); // PUT if by name/uuid, otherwise POST
+    UsergridEntity jeffCat = new UsergridEntity("pet");
+    jeffCat.setProperty("name", "max");
+    jeffCat.setProperty("age", 15);
+    jeffCat.setProperty("weight", 21);
+    jeffCat.setProperty("owner", (String) null);
+    jeffCat.save(); // PUT if by name/uuid, otherwise POST
 
-    jeff.put(pet);
-    brandon.put(pet);
+    UsergridEntity brandonCat =  UsergridEntity.copyOf(jeffCat);
 
-    pet.post(); // POST to default client to create, fails if exists?
-    pet.put(); // PUT to default client to update, fails if doesn't exist?
-    pet.delete(); // DELETE to default client
+    jeffCat.post(); // POST to default client to create, fails if exists?
+    jeffCat.put(); // PUT to default client to update, fails if doesn't exist?
+    jeffCat.delete(); // DELETE to default client
 //    pet.patch(); // PATCH to update individual fields?
 
+
     UsergridEntity owner = new UsergridEntity();
-    owner.setType("owner");
+    owner.changeType("owner");
     owner.setProperty("name", "jeff");
     owner.setProperty("age", 15);
     owner.save();
 
-    owner.connect(pet, "owns");
+    owner.connect(jeffCat, "owns");
 
     // consider for v2 api
     //    /_entities/{collection}:{name}

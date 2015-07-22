@@ -34,13 +34,13 @@ public class Group extends UsergridEntity {
 
 	public Group() {
 		super();
-		setType(ENTITY_TYPE);
+		changeType(ENTITY_TYPE);
 	}
 
 	public Group(UsergridEntity usergridEntity) {
 		super();
 		properties = usergridEntity.properties;
-		setType(ENTITY_TYPE);
+		changeType(ENTITY_TYPE);
 	}
 
 	@Override

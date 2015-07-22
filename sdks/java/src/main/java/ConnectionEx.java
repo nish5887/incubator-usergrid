@@ -64,22 +64,22 @@ public class ConnectionEx {
         UsergridEntity person3 = new UsergridEntity();
         UsergridEntity person4 = new UsergridEntity();
 
-        person1.setType("people");
+        person1.changeType("people");
         person1.setProperty("name", "A");
         person1.setProperty("age", 20);
         person1.save();
 
-        person2.setType("people");
+        person2.changeType("people");
         person2.setProperty("name", "B");
         person2.setProperty("age", 21);
         person2.save();
 
-        person3.setType("people");
+        person3.changeType("people");
         person3.setProperty("name", "C");
         person3.setProperty("age", 22);
         person3.save();
 
-        person4.setType("people");
+        person4.changeType("people");
         person4.setProperty("name", "D");
         person4.setProperty("age", 23);
         person4.save();
@@ -93,22 +93,22 @@ public class ConnectionEx {
 
 
 
-        rest1.setType("Restaurants");
+        rest1.changeType("Restaurants");
         rest1.setProperty("name", "Amici");
         rest1.setProperty("Location", "San Jose");
         rest1.save();
 
-        rest2.setType("Restaurants");
+        rest2.changeType("Restaurants");
         rest2.setProperty("name", "Yard House");
         rest2.setProperty("Location", "LA");
         rest2.save();
 
-        rest3.setType("Restaurants");
+        rest3.changeType("Restaurants");
         rest3.setProperty("name", "PizzaStudio");
         rest3.setProperty("Location", "LA");
         rest3.save();
 
-        rest4.setType("Restaurants");
+        rest4.changeType("Restaurants");
         rest4.setProperty("name", "CPK");
         rest4.setProperty("Location", "San Jose");
         rest4.save();

@@ -43,13 +43,13 @@ public class User extends UsergridEntity {
 
 	public User() {
 		super();
-		setType(ENTITY_TYPE);
+		changeType(ENTITY_TYPE);
 	}
 
 	public User(UsergridEntity usergridEntity) {
 		super();
 		properties = usergridEntity.properties;
-		setType(ENTITY_TYPE);
+		changeType(ENTITY_TYPE);
 	}
 
 	@Override

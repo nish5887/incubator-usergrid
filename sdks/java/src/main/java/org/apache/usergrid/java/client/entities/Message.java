@@ -49,13 +49,13 @@ public class Message extends UsergridEntity {
 
 	public Message() {
 		super();
-		setType(ENTITY_TYPE);
+		changeType(ENTITY_TYPE);
 	}
 
 	public Message(UsergridEntity usergridEntity) {
 		super();
 		properties = usergridEntity.properties;
-		setType(ENTITY_TYPE);
+		changeType(ENTITY_TYPE);
 	}
 
 	@Override
